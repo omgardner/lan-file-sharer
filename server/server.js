@@ -3,13 +3,7 @@ const app = express()
 const fs = require('fs/promises')
 
 
-function resolveAfter2Seconds(x) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(x);
-        }, 2000);
-    });
-}
+
 
 // for early testing i only need the one backend API endpoint
 app.use("/api", async (req, res) => {
