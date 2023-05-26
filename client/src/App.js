@@ -3,10 +3,8 @@ import './App.css';
 import Header from './components/HeaderSection';
 import DownloadSection from './components/DownloadSection';
 import UploadSection from './components/UploadSection';
-
-
-
-
+import { useEffect } from 'react';
+  
 
 const theme = createTheme({
   palette: {
@@ -14,9 +12,8 @@ const theme = createTheme({
   },
 });
 
+
 const App = () => {
-
-
   
   return (
     <ThemeProvider theme={theme}>
