@@ -15,7 +15,7 @@ function FileUploadForm() {
       formData.append("uploaded_files", file);
     }
 
-    //console.log(inputFilesElement.files)
+    console.log(inputFilesElement.files)
 
     fetch(url,
       {

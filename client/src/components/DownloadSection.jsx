@@ -25,10 +25,6 @@ const DownloadSection = () => {
            fileMetadata.files.map((file) => {
             return <DownloadItem fileMetadata={file}/>
           })
-
-          
-          
-          
         )
       }
     </Card>
