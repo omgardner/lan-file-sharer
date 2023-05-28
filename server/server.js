@@ -37,10 +37,10 @@ app.use("/api", async (req, res) => {
     res.send({ "files": fileMetadataArr })
 })
 
-
+const STORAGE_DIR = 'storage_directory/'
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './storage_directory')
+      cb(null, STORAGE_DIR)
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname)
@@ -49,8 +49,28 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
-app.use("/upload", upload.array("uploaded_files"), (req, res) =>{
+function getEpochTime() {
+    return Math.floor(new Date() / 1000)
+}
+
+app.use("/upload", upload.array("uploaded_files"), async (req, res) =>{
+    // the multer upload object is middleware before this current callback function. 
+    // This means that the file(s), if any, are already uploaded by this point.
+
+    // this callback function part involves saving the uploaded text into a text file.
+    if (typeof req.body.uploaded_text !== 'undefined') {
+        // creates a filename with a fixed prefix and the current epoch time as the suffix
+        const filename = `text-upload_${getEpochTime()}.txt`
+    
+        console.log(filename)
+        console.log(req.body.uploaded_text)
+        
+        // I like to live dangerously. Who needs error handling anyway? TODO (lol) add error handling to my code in various places.
+        await fs.writeFile(STORAGE_DIR + filename, req.body.uploaded_text)
+    }
+
     res.send("god i hope this worked")
+    
 })
 
 
