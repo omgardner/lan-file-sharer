@@ -6,14 +6,18 @@ const multer = require('multer')
 const cors = require('cors')
 app.use(cors())
 
+const STORAGE_DIR = 'storage_directory/'
+
+// serves the files in the STORAGE_DIR as static files at the /download endpoint
+app.use('/download', express.static(STORAGE_DIR))
+
+
 // for early testing i only need the one backend API endpoint
 app.use("/api", async (req, res) => {
     console.log("received request to /api")
 
-    const rootStorageDirectory = './storage_directory/';
-
     // gets a list of filenames
-    const filenames = await fs.readdir(rootStorageDirectory)
+    const filenames = await fs.readdir(STORAGE_DIR)
 
     /*  uses those filenames to get stats for each file, and gets an array containing each file's metadata
     
@@ -25,19 +29,20 @@ app.use("/api", async (req, res) => {
     */    
     const fileMetadataArr = await Promise.all(
         filenames.map(async (filename) => {
-            const stats = await fs.stat(rootStorageDirectory + filename)
+            const stats = await fs.stat(STORAGE_DIR + filename)
             return {
                 "filename": filename,
                 "size": stats.size,
                 "lastModifiedTime": stats.mtime,
-                "fileCategory": "UNKNOWN"
+                "fileCategory": "UNKNOWN",
+                "staticURL": `http://localhost:5000/download/${filename}`
             }
         }))
 
     res.send({ "files": fileMetadataArr })
 })
 
-const STORAGE_DIR = 'storage_directory/'
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, STORAGE_DIR)

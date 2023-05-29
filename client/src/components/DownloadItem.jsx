@@ -1,6 +1,7 @@
 import { Card, CardMedia, CardContent, Box, Typography } from '@mui/material';
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import DownloadItemInteractions from './DownloadItemInteractions';
 dayjs.extend(relativeTime)
 
 
@@ -47,8 +48,7 @@ const DownloadItem = ({ fileMetadata }) => {
   const displayedFilename = fullFilename.slice(0, truncateAfterNChars) + (fullFilename.length > truncateAfterNChars ? "..." : "")
   
   const displayedTimeSinceLastModification = dayjs(fileMetadata.lastModifiedTime).fromNow()
-
-
+  
   return (
     <Card sx={{ display: 'flex' }}>
       <Box sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -72,6 +72,7 @@ const DownloadItem = ({ fileMetadata }) => {
             {displayedTimeSinceLastModification}
           </Typography>
         </Box>
+        <DownloadItemInteractions fileMetadata={ fileMetadata }/>
       </Box>
 
 

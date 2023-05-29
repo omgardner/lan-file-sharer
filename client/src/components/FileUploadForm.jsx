@@ -10,10 +10,6 @@ function handleSubmit(event) {
   const inputFilesElement = document.getElementById("inputFiles");
   const inputTextElement = document.getElementById("inputText");
 
-  if (typeof inputFilesElement.files !== 'undefined') {}
-
-
-
   const formData = new FormData()
 
   // add the files 
