@@ -47,7 +47,7 @@ const DownloadItem = ({ fileMetadata }) => {
   // truncates very long filenames so that they easily fit onto the screen
   const displayedFilename = fullFilename.slice(0, truncateAfterNChars) + (fullFilename.length > truncateAfterNChars ? "..." : "")
   
-  const displayedTimeSinceLastModification = dayjs(fileMetadata.lastModifiedTime).fromNow()
+  const displayedTimeSinceLastModification = dayjs(fileMetadata.uploadTimeEpochMs).fromNow()
   
   return (
     <Card sx={{ display: 'flex' }}>
@@ -66,7 +66,7 @@ const DownloadItem = ({ fileMetadata }) => {
             {fileMetadata.fileCategory}
           </Typography>
           <Typography variant='body1'>
-            {prettyFilesize(fileMetadata.size)}
+            {prettyFilesize(fileMetadata.filesize)}
           </Typography>
           <Typography variant='body2'>
             {displayedTimeSinceLastModification}

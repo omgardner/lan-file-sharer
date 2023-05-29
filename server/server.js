@@ -32,8 +32,8 @@ app.get("/api", async (req, res) => {
             const stats = await fs.stat(STORAGE_DIR + filename)
             return {
                 "filename": filename,
-                "size": stats.size,
-                "lastModifiedTime": stats.mtime,
+                "filesize": stats.size,
+                "uploadTimeEpochMs": stats.mtimeMs,
                 "fileCategory": "UNKNOWN",
                 "staticURL": `http://localhost:5000/download/${filename}`
             }

@@ -17,6 +17,7 @@ function DownloadItemInteractions({ fileMetadata }) {
 
 
         try {
+            // hacked together during testing, TODO clean this up.
             const imgURL = fileMetadata.staticURL;
             const text = await fetch(imgURL).then(x => x.text())
             const data = await fetch(imgURL)
