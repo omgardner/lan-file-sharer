@@ -61,6 +61,7 @@ function DownloadItemInteractions({ fileMetadata }) {
 
 
     function downloadToDevice() {
+        
         fetch(fileMetadata.staticURL)
             .then((res) => res.blob())
             .then((blob) => {
@@ -82,6 +83,27 @@ function DownloadItemInteractions({ fileMetadata }) {
             })
     }
 
+    function deleteFile() {
+
+        const url = "http://localhost:5000/delete"
+        fetch(url,
+          {
+            method: "DELETE",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({"filename": fileMetadata.filename})
+          }
+        ).then((result) => {
+          console.log('Success:', result);
+      
+        })
+          .catch((error) => {
+            console.error('Error:', error);
+      
+          });
+      }
+      
+      
+
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -97,7 +119,7 @@ function DownloadItemInteractions({ fileMetadata }) {
                 </a>
             </div>
             <div>
-                <button>Delete File</button>
+                <button onClick={deleteFile}>Delete File</button>
             </div>
         </Box>
     )

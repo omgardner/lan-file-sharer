@@ -9,11 +9,11 @@ app.use(cors())
 const STORAGE_DIR = 'storage_directory/'
 
 // serves the files in the STORAGE_DIR as static files at the /download endpoint
-app.use('/download', express.static(STORAGE_DIR))
+app.get('/download', express.static(STORAGE_DIR))
 
 
 // for early testing i only need the one backend API endpoint
-app.use("/api", async (req, res) => {
+app.get("/api", async (req, res) => {
     console.log("received request to /api")
 
     // gets a list of filenames
@@ -58,7 +58,7 @@ function getEpochTime() {
     return Math.floor(new Date() / 1000)
 }
 
-app.use("/upload", upload.array("uploaded_files"), async (req, res) =>{
+app.post("/upload", upload.array("uploaded_files"), async (req, res) =>{
     // the multer upload object is middleware before this current callback function. 
     // This means that the file(s), if any, are already uploaded by this point.
 
@@ -76,6 +76,16 @@ app.use("/upload", upload.array("uploaded_files"), async (req, res) =>{
 
     res.send("god i hope this worked")
     
+})
+
+
+app.delete("/delete", express.json(), async (req, res) => {
+    const filename = req.body.filename
+
+    fs.unlink(STORAGE_DIR+filename).then(
+        (result) => res.status(200).send("Success!"),
+        (result) => res.status(404).send("Failure!")
+    )
 })
 
 
