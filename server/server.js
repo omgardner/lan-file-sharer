@@ -6,10 +6,10 @@ const multer = require('multer')
 const cors = require('cors')
 app.use(cors())
 
-const STORAGE_DIR = 'storage_directory/'
+const STORAGE_DIR = './storage_directory/'
 
 // serves the files in the STORAGE_DIR as static files at the /download endpoint
-app.get('/download', express.static(STORAGE_DIR))
+app.use('/download', express.static(STORAGE_DIR))
 
 
 // for early testing i only need the one backend API endpoint

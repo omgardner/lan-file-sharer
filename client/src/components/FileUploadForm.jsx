@@ -1,5 +1,5 @@
 // initial code from: https://codefrontend.com/file-upload-reactjs/
-import { Typography } from '@mui/material';
+import { TextareaAutosize, Typography, Box } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 
 
@@ -41,11 +41,12 @@ function handleSubmit(event) {
 
 function FileUploadForm() {
   return (
-    <form method="POST" enctype="multipart/form-data" onSubmit={handleSubmit}>
-      <input type='text' id="inputText" name="uploaded_text" />
-      <input type="file" id="inputFiles" name="uploaded_files" multiple />
-      <input type="submit" />
-    </form>
+      <form method="POST" enctype="multipart/form-data" onSubmit={handleSubmit}>
+        <textarea placeholder='Paste Some Text' id="inputText" />
+        <p>OR Upload Some Files:</p>
+        <input type="file" id="inputFiles" name="uploaded_files" multiple />
+        <input type="submit" value="Upload Data" />
+      </form>
   );
 }
 
