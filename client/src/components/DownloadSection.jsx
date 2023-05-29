@@ -1,29 +1,39 @@
-import { Card } from '@mui/material';
+import { Card, Box} from '@mui/material';
 import DownloadItem from './DownloadItem';
 import { useEffect, useState } from 'react';
+
+
 
 
 const DownloadSection = () => {
   const [fileMetadata, setFileMetadata] = useState({})
 
-  useEffect( () =>{
+  function reloadData() {
     fetch("/api")
       .then((res) => res.json())
       .then((res) => {
         setFileMetadata(res)
-      })}
-    , [])
-    console.log(fileMetadata)
+      })
+  }
+
+  // reload the data the first time this component is created
+  useEffect(reloadData, [])
+  console.log(fileMetadata)
 
   return (
     <Card>
-      <h1>Download Section</h1>
+
+      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+        <h1>Download Section</h1>
+        <button onClick={reloadData}>Refresh</button>
+      </Box>
+
       {
         (typeof fileMetadata.files === 'undefined') ? (
           <p>Scanning for file updates...</p>
         ) : (
-           fileMetadata.files.map((file) => {
-            return <DownloadItem fileMetadata={file}/>
+          fileMetadata.files.map((file) => {
+            return <DownloadItem fileMetadata={file} />
           })
         )
       }
