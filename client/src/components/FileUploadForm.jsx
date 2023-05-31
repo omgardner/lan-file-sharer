@@ -1,6 +1,6 @@
 // initial code from: https://codefrontend.com/file-upload-reactjs/
-import { TextareaAutosize, Typography, Box } from '@mui/material';
-import { ChangeEvent, useState } from 'react';
+import { TextareaAutosize, Typography, Box, Grid, Button } from '@mui/material';
+import { ChangeEvent, useEffect, useState } from 'react';
 
 
 
@@ -12,13 +12,20 @@ import { ChangeEvent, useState } from 'react';
 
 function FileUploadForm() {
 
-  // note: since an empty FileList can't be constructed I've used an empty as the default state value. This is because both support 
+  // note: since an empty FileList can't be constructed I've used an empty array as the default state value instead. This is sufficient for my use case because both support 
   //  (a) the .length property and 
-  //  (b) are iterable using a for...of loop
+  //  (b) iteration using a for...of loop
 
   const [inputTagFileList, setInputTagFileList] = useState([])
   const [droppedFileList, setDroppedFileList] = useState([])
+  const [fileQueueCount, setFileQueueCount] = useState(0)
   const [inputText, setInputText] = useState("")
+
+  // change the file count anytime either of the file lists get changed
+  useEffect(() => {
+    setFileQueueCount(inputTagFileList.length + droppedFileList.length)
+
+  }, [handleInputFilesChange, handleDroppedFilesChange])
 
   function handleSubmit(event) {
     // stops the page from being redirected
@@ -38,11 +45,11 @@ function FileUploadForm() {
 
 
     // add the text if any
-    // note: i'm starting to see the benefit of using typescript
+    // note: i'm starting to see the benefit of using typescript across this whole component
     if (typeof inputText !== 'undefined' && inputText.length > 0) {
       formData.append("uploaded_text", inputText)
     }
-    
+
 
     // AJAX HTTP POST request
     const url = "http://localhost:5000/upload"
@@ -60,12 +67,14 @@ function FileUploadForm() {
 
       });
 
-      event.target.reset()
+    // // reset the form
+    document.getElementById("txtInput").value = ""
 
-      // the form gets reset but the state variables need to be updated as well (since the onchange doesn't trigger from the reset)
-      setInputText("")
-      setInputTagFileList([])
-      setDroppedFileList([])
+    // the form gets reset but the state variables need to be updated as well (since the onchange event doesn't trigger from the reset)
+    setInputText("")
+    setInputTagFileList([])
+    setDroppedFileList([])
+    setFileQueueCount(0)
   }
 
 
@@ -79,15 +88,11 @@ function FileUploadForm() {
     // stops the dragged file from redirecting the page once dropped
     event.preventDefault()
 
-    // sets a FileList
-    // an empty FileList if none of the dragged items were files
-
     // Nullish coalescing operator
     setDroppedFileList(event.dataTransfer.files ?? [])
   }
 
   function handleInputFilesChange(event) {
-
     // Nullish coalescing operator
     // this prevents bugs when event.target.files is undefined
     setInputTagFileList(event.target.files ?? [])
@@ -102,25 +107,42 @@ function FileUploadForm() {
 
 
 
+
+
   return (
-    <div
-      id="target"
+    <Box
       onDrop={handleDroppedFilesChange}
       onDragOver={onDragOver}
-    >
-      <form method="POST" encType="multipart/form-data" onSubmit={handleSubmit}>
-        <textarea 
-        onInput={handleInputTextChange} 
-        placeholder='Paste or Type Some Text'
-        style={{resize: 'none'}}
+      sx={{ display: 'flex', flexDirection: 'row', padding: 2 }}>
+      <Box
+        sx={{ display: 'flex', flexDirection: 'column', padding: 2 }}>
+        <textarea
+          id="txtInput"
+          onInput={handleInputTextChange}
+          placeholder='Paste or Type Some Text'
+          style={{ resize: 'none' }}
         ></textarea>
-        <p>OR Upload Some Files:</p>
-        <input type="file" name="uploaded_files" multiple onChange={handleInputFilesChange}/>
-        <input type="submit" value="Upload Data" />
-      </form>
-      <p>Total Files to be uploaded: {inputTagFileList.length + droppedFileList.length}</p>
-      <p>Any text to be uploaded? {inputText.length > 0 ? 'yes' : 'no'}</p>
-    </div>
+        <Box minWidth={64} minHeight={64} sx={{ backgroundColor: "#999999" }}>
+          <label htmlFor="uploaded_files" style={{width:'100%',  height:'100%', display: 'inline-block', textAlign:"center"}}>Upload Some Files</label>
+        </Box>
+
+        <input
+          id="uploaded_files"
+          type="file"
+          name="uploaded_files"
+          multiple
+          onChange={handleInputFilesChange}
+          style={{ display: 'none' }}
+        />
+      </Box>
+      <Box
+        sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 2 }}
+      >
+        {fileQueueCount > 0 ? (<p>{fileQueueCount} File(s) Queued</p>) : (<></>)}
+        <Button variant="contained" onClick={handleSubmit} >Upload Data</Button>
+        {inputText.length > 0 ? (<p>Text Queued</p>) : (<></>)}
+      </Box>
+    </Box>
   );
 }
 
@@ -129,3 +151,37 @@ function FileUploadForm() {
 
 
 export default FileUploadForm;
+
+
+
+
+
+
+/* <Grid container>
+      <form method="POST" encType="multipart/form-data" onSubmit={handleSubmit}>
+        <Box
+          id="target"
+          onDrop={handleDroppedFilesChange}
+          onDragOver={onDragOver}
+          sx={{ display: 'flex', flexDirection: 'row' }}
+          xs={4}
+        >
+
+          <textarea
+            onInput={handleInputTextChange}
+            placeholder='Paste or Type Some Text'
+            style={{ resize: 'none' }}
+          ></textarea>
+          <input type="file" name="uploaded_files" multiple onChange={handleInputFilesChange} />
+        </Box>
+
+        <Box
+          sx={{ display: 'flex', flexDirection: 'column' }}
+          xs={6}
+        >
+          {fileQueueCount > 0 ? (<p>{fileQueueCount} File(s) Queued</p>) : (<></>)}
+          <input type="submit" value="Upload Data" />
+          {inputText.length > 0 ? (<p>Text Queued</p>) : (<></>)}
+        </Box>
+      </form>
+    </Grid> */

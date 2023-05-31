@@ -19,17 +19,17 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Grid container
-        columns={{ xs: 8, sm: 8, md: 8, lg: 12}}
+        columns={{ xs: 8, sm: 8, md: 8, lg: 12 }}
         justifyContent="center"
       >
         <Grid item xs={12}>
           <Header />
         </Grid>
         <Grid item xs={8}>
-            <Card>
-              <UploadSection />
-              <DownloadSection />
-            </Card>
+          <Card>
+            <UploadSection />
+            <DownloadSection />
+          </Card>
         </Grid>
       </Grid>
     </ThemeProvider>

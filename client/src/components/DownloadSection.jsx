@@ -9,6 +9,7 @@ import DownloadSortAndFilter from './DownloadSortAndFilter';
 const DownloadSection = () => {
   // handle initial retrieval of the data
   const [fileMetadata, setFileMetadata] = useState({})
+  
   function reloadData() {
     fetch("/api")
       .then((res) => res.json())

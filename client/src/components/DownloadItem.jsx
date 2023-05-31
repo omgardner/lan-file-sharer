@@ -8,7 +8,7 @@ dayjs.extend(relativeTime)
 function prettyFilesize(sizeBytes) {
   // Honestly it seems like the cleanest way to do this.
   var tmp = sizeBytes
-  const cutoff = 10000
+  const cutoff = 1024
 
   if (tmp < cutoff) {
     return `${tmp.toFixed(2)} B`
