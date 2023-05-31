@@ -1,12 +1,7 @@
 // initial code from: https://codefrontend.com/file-upload-reactjs/
 import { TextareaAutosize, Typography, Box, Grid, Button } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
-
-
-
-
-
-
+import { SERVER_URL } from '../exports';
 
 
 
@@ -52,8 +47,7 @@ function FileUploadForm() {
 
 
     // AJAX HTTP POST request
-    const url = "http://localhost:5000/upload"
-    fetch(url,
+    fetch(SERVER_URL + "/upload",
       {
         method: "POST",
         body: formData

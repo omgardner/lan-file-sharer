@@ -2,6 +2,7 @@ import { Card, Box, Select, MenuItem, FormControl, InputLabel } from '@mui/mater
 import DownloadItem from './DownloadItem';
 import { useEffect, useState } from 'react';
 import DownloadSortAndFilter from './DownloadSortAndFilter';
+import { SERVER_URL } from '../exports';
 
 
 
@@ -11,7 +12,7 @@ const DownloadSection = () => {
   const [fileMetadata, setFileMetadata] = useState({})
   
   function reloadData() {
-    fetch("/api")
+    fetch(SERVER_URL + "/api")
       .then((res) => res.json())
       .then((data) => {
         setFileMetadata(data)

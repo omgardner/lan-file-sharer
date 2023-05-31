@@ -24,6 +24,7 @@ function DownloadItemInteractions({ fileMetadata }) {
             const blob = await data.blob()
             console.log(data.headers.get("Content-Type"),blob.type)
             console.log(text.slice(0,50)+`... (len=${text.length})`)
+            console.log(imgURL)
             navigator.clipboard.writeText(text)
             // await navigator.clipboard.write([
             //     new ClipboardItem({

@@ -12,6 +12,12 @@ const STORAGE_DIR = './storage_directory/'
 app.use('/download', express.static(STORAGE_DIR))
 
 
+const os = require('os')
+const SERVER_PORT = 5000
+const SERVER_ADDRESS = os.networkInterfaces()["Ethernet"][0].address
+const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
+
+
 // for early testing i only need the one backend API endpoint
 app.get("/api", async (req, res) => {
     console.log("received request to /api")
@@ -35,7 +41,7 @@ app.get("/api", async (req, res) => {
                 "filesize": stats.size,
                 "uploadTimeEpochMs": stats.mtimeMs,
                 "fileCategory": "UNKNOWN",
-                "staticURL": `http://localhost:5000/download/${filename}`
+                "staticURL": `${SERVER_URL}/download/${filename}`
             }
         }))
 
@@ -90,4 +96,4 @@ app.delete("/delete", express.json(), async (req, res) => {
 
 
 
-app.listen(5000, () => console.log("Listening on http://localhost:5000"))
+app.listen(SERVER_PORT, () => console.log(`Listening on ${SERVER_URL}`))
