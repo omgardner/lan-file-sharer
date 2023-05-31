@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import React from 'react'
+import { SERVER_URL } from '../exports';
 
 
 function DownloadItemInteractions({ fileMetadata }) {
@@ -87,8 +88,7 @@ function DownloadItemInteractions({ fileMetadata }) {
 
     function deleteFile() {
 
-        const url = "http://localhost:5000/delete"
-        fetch(url,
+        fetch(SERVER_URL + "/delete",
           {
             method: "DELETE",
             headers: {"Content-Type": "application/json"},
