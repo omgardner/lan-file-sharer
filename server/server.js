@@ -48,7 +48,7 @@ app.get("/api", async (req, res) => {
     res.send({ "files": fileMetadataArr })
 })
 
-
+// setup middleware so that upon a POST request to the /upload endpoint the multipart/form-data is saved to the STORAGE_DIR directory.
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, STORAGE_DIR)
