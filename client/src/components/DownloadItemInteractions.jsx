@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import React, { useContext } from 'react'
 import { SERVER_URL } from '../config';
 import { FileListDispatchContext } from './FileContext';
@@ -114,20 +114,20 @@ function DownloadItemInteractions({ fileMetadata }) {
 
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: "wrap"}} >
             <div>
-                <button onClick={copyFileToClipboard}>Copy to Clipboard</button>
+            <Button variant="outlined" size='medium' onClick={copyFileToClipboard}>Copy</Button>
             </div>
             <div>
-                <button onClick={downloadToDevice}>Download to Device</button>
+                <Button variant="outlined" size='medium' onClick={downloadToDevice}>Download</Button>
             </div>
             <div>
                 <a href={fileMetadata.staticURL} target="_blank" rel="noreferrer">
-                    <button>Preview File</button>
+                    <Button variant="outlined" size='medium'>Preview</Button>
                 </a>
             </div>
             <div>
-                <button onClick={deleteFile}>Delete File</button>
+                <Button variant="outlined" size='medium' onClick={deleteFile}>Delete</Button>
             </div>
         </Box>
     )

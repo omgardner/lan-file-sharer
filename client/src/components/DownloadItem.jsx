@@ -1,4 +1,4 @@
-import { Card, CardMedia, CardContent, Box, Typography } from '@mui/material';
+import { Card, CardMedia, CardContent, Box, Typography, Grid } from '@mui/material';
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import DownloadItemInteractions from './DownloadItemInteractions';
@@ -42,41 +42,49 @@ function prettyFilesize(sizeBytes) {
 const DownloadItem = ({ fileMetadata }) => {
 
   const fullFilename = fileMetadata.filename
-  const truncateAfterNChars = 15
+  const truncateAfterNChars = 100 // DEBUG
 
   // truncates very long filenames so that they easily fit onto the screen
   const displayedFilename = fullFilename.slice(0, truncateAfterNChars) + (fullFilename.length > truncateAfterNChars ? "..." : "")
-  
+
   const displayedTimeSinceLastModification = dayjs(fileMetadata.uploadTimeEpochMs).fromNow()
-  
+
   return (
-    <Card sx={{ display: 'flex' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-        <CardMedia
-          component="img"
-          sx={{ height: 64, width: 64 }}
-          image="/logo192.png"
-          alt="this is a test"
-        />
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant='h6' title={fullFilename}>
+    <Card sx={{ padding: 1}}>
+      <Grid container>
+        <Grid item xs={12} >
+          <Typography variant='h6' title={fullFilename} noWrap={true}>
             {displayedFilename}
           </Typography>
-          <Typography variant='subtitle2'>
-            {fileMetadata.fileCategory}
-          </Typography>
-          <Typography variant='body1'>
-            {prettyFilesize(fileMetadata.filesize)}
-          </Typography>
-          <Typography variant='body2'>
-            {displayedTimeSinceLastModification}
-          </Typography>
-        </Box>
-        <DownloadItemInteractions fileMetadata={ fileMetadata }/>
-      </Box>
+        </Grid>
+        <Grid item xs={3}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <CardMedia
+              component="img"
+              sx={{ width: '80%', maxWidth: "64px" }}
+              image="/logo192.png"
+              alt="this is a test"
+            />
+            <Typography variant='subtitle2' noWrap={true}>
+              {fileMetadata.fileCategory}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={2.5}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' , }}>
 
-
-
+            <Typography variant='body1'>
+              {prettyFilesize(fileMetadata.filesize)}
+            </Typography>
+            <Typography variant='body2'>
+              {displayedTimeSinceLastModification}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={5.5}>
+          <DownloadItemInteractions fileMetadata={fileMetadata} />
+        </Grid>
+      </Grid>
     </Card>
   );
 }
