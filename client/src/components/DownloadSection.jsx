@@ -1,21 +1,24 @@
 import { Card, Box, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import DownloadItem from './DownloadItem';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import DownloadSortAndFilter from './DownloadSortAndFilter';
-import { SERVER_URL } from '../exports';
+import { SERVER_URL } from '../config';
+import { FileListContext, FileListDispatchContext } from './FileContext';
 
 
 
 
 const DownloadSection = () => {
   // handle initial retrieval of the data
-  const [fileMetadata, setFileMetadata] = useState({})
-  
+
+  const fileMetadataArr = useContext(FileListContext)
+  const dispatch = useContext(FileListDispatchContext)
+
   function reloadData() {
     fetch(SERVER_URL + "/api")
       .then((res) => res.json())
       .then((data) => {
-        setFileMetadata(data)
+        dispatch({ type: 'reloaded', fileMetadataArr: data.files })
       })
   }
 
@@ -42,17 +45,17 @@ const DownloadSection = () => {
       <Box sx={{ display: 'flex', flexDirection: 'row' }}>
         <h1>Download Section</h1>
         <button onClick={reloadData}>Refresh</button>
-        <DownloadSortAndFilter onChange={setSortBy} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending}/>
+        <DownloadSortAndFilter onChange={setSortBy} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending} />
         <p>DEBUG Sorting by: {sortBy}</p>
       </Box>
 
       {
-        (typeof fileMetadata.files === 'undefined') ? (
+        (typeof fileMetadataArr === 'undefined') ? (
           <p>Scanning for file updates...</p>
         ) : (
 
 
-          fileMetadata.files
+          fileMetadataArr
             .sort(sortingFunctionMapping[sortBy])
             .map((fileMetadata, i) => {
               return <DownloadItem fileMetadata={fileMetadata} key={i} />

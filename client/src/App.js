@@ -3,6 +3,7 @@ import './App.css';
 import Header from './components/HeaderSection';
 import DownloadSection from './components/DownloadSection';
 import UploadSection from './components/UploadSection';
+import { FileListProvider } from './components/FileContext';
 
 
 
@@ -26,13 +27,18 @@ const App = () => {
           <Header />
         </Grid>
         <Grid item xs={8}>
-          <Card>
-            <UploadSection />
-            <DownloadSection />
-          </Card>
+          <FileListProvider>
+            <Card>
+
+              <UploadSection />
+
+              <DownloadSection />
+
+            </Card>
+          </FileListProvider>
         </Grid>
       </Grid>
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }
 

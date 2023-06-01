@@ -1,16 +1,17 @@
 // initial code from: https://codefrontend.com/file-upload-reactjs/
 import { TextareaAutosize, Typography, Box, Grid, Button } from '@mui/material';
-import { ChangeEvent, useEffect, useState } from 'react';
-import { SERVER_URL } from '../exports';
-
+import { ChangeEvent, useContext, useEffect, useReducer, useState } from 'react';
+import { SERVER_URL } from '../config';
+import { FileListDispatchContext } from './FileContext';
 
 
 function FileUploadForm() {
+  const dispatch = useContext(FileListDispatchContext)
+
 
   // note: since an empty FileList can't be constructed I've used an empty array as the default state value instead. This is sufficient for my use case because both support 
   //  (a) the .length property and 
   //  (b) iteration using a for...of loop
-
   const [inputTagFileList, setInputTagFileList] = useState([])
   const [droppedFileList, setDroppedFileList] = useState([])
   const [fileQueueCount, setFileQueueCount] = useState(0)
@@ -52,14 +53,16 @@ function FileUploadForm() {
         method: "POST",
         body: formData
       }
-    ).then((result) => {
-      console.log('Success:', result);
-
-    })
+    )
+      .then((result) => result.json())
+      .then((data) => {
+        // returns the metadata for the files that have been added, so that the file list can be updated locally without another /api call
+        console.log('Successful upload, updating the file list');
+        dispatch({ type: 'uploaded', uploadedFileMetadataArr: data })
+      })
       .catch((error) => {
         console.error('Error:', error);
-
-      });
+      })
 
     // // reset the form
     document.getElementById("txtInput").value = ""
@@ -117,7 +120,7 @@ function FileUploadForm() {
           style={{ resize: 'none' }}
         ></textarea>
         <Box minWidth={64} minHeight={64} sx={{ backgroundColor: "#999999" }}>
-          <label htmlFor="uploaded_files" style={{width:'100%',  height:'100%', display: 'inline-block', textAlign:"center"}}>Upload Some Files</label>
+          <label htmlFor="uploaded_files" style={{ width: '100%', height: '100%', display: 'inline-block', textAlign: "center" }}>Upload Some Files</label>
         </Box>
 
         <input

@@ -1,9 +1,14 @@
 import { Box } from '@mui/material'
-import React from 'react'
-import { SERVER_URL } from '../exports';
+import React, { useContext } from 'react'
+import { SERVER_URL } from '../config';
+import { FileListDispatchContext } from './FileContext';
+
 
 
 function DownloadItemInteractions({ fileMetadata }) {
+
+    const dispatch = useContext(FileListDispatchContext)
+
     async function copyFileToClipboard() {
         // const imgURL = fileMetadata.staticURL;
         // const data = await fetch(imgURL);
@@ -14,7 +19,7 @@ function DownloadItemInteractions({ fileMetadata }) {
         //     console.log('DataURL:', e.target.result);
         //     navigator.clipboard.writeText   (e.target.result)
         // }
-        
+
 
 
         try {
@@ -63,7 +68,7 @@ function DownloadItemInteractions({ fileMetadata }) {
 
 
     function downloadToDevice() {
-        
+
         fetch(fileMetadata.staticURL)
             .then((res) => res.blob())
             .then((blob) => {
@@ -88,22 +93,24 @@ function DownloadItemInteractions({ fileMetadata }) {
     function deleteFile() {
 
         fetch(SERVER_URL + "/delete ",
-          {
-            method: "DELETE",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({"filename": fileMetadata.filename})
-          }
-        ).then((result) => {
-          console.log('Success:', result);
-      
-        })
-          .catch((error) => {
-            console.error('Error:', error);
-      
-          });
-      }
-      
-      
+            {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "filename": fileMetadata.filename })
+            }
+        ).then((result) => result.json())
+            .then((data) => {
+                console.log('Success, removing the file from the local array')
+                dispatch({ type: 'deleted', deletedFilename: data.deletedFilename })
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+
+            });
+    }
+
+
 
 
     return (
