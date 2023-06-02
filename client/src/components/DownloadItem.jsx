@@ -2,6 +2,12 @@ import { Card, CardMedia, CardContent, Box, Typography, Grid } from '@mui/materi
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import DownloadItemInteractions from './DownloadItemInteractions';
+
+import FileCategoryBox from './FileCategoryBox';
+
+
+
+
 dayjs.extend(relativeTime)
 
 
@@ -50,7 +56,7 @@ const DownloadItem = ({ fileMetadata }) => {
   const displayedTimeSinceLastModification = dayjs(fileMetadata.uploadTimeEpochMs).fromNow()
 
   return (
-    <Card sx={{ padding: 1}}>
+    <Card sx={{ padding: 1 }}>
       <Grid container>
         <Grid item xs={12} >
           <Typography variant='h6' title={fullFilename} noWrap={true}>
@@ -58,20 +64,11 @@ const DownloadItem = ({ fileMetadata }) => {
           </Typography>
         </Grid>
         <Grid item xs={3}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <CardMedia
-              component="img"
-              sx={{ width: '80%', maxWidth: "64px" }}
-              image="/logo192.png"
-              alt="this is a test"
-            />
-            <Typography variant='subtitle2' noWrap={true}>
-              {fileMetadata.fileCategory}
-            </Typography>
-          </Box>
+        <FileCategoryBox fileCategory={fileMetadata.fileCategory}/>
+          
         </Grid>
         <Grid item xs={2.5}>
-          <Box sx={{ display: 'flex', flexDirection: 'column' , }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', }}>
 
             <Typography variant='body1'>
               {prettyFilesize(fileMetadata.filesize)}
@@ -90,3 +87,10 @@ const DownloadItem = ({ fileMetadata }) => {
 }
 
 export default DownloadItem;
+
+// <CardMedia
+//               component="img"
+//               sx={{ width: '80%', maxWidth: "64px" }}
+//               image="/logo192.png"
+//               alt="this is a test"
+//             />

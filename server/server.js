@@ -1,21 +1,58 @@
+// expressjs as a web server
 const express = require('express')
 const app = express()
-const fs = require('fs/promises')
-const multer = require('multer')
 
+
+
+
+// allowing CORS, for communicating with the client that is on a different domain
 const cors = require('cors')
 app.use(cors())
+
+
+// handling files and file metadata
+const fs = require('fs/promises')
+const multer = require('multer')
+var mime = require('mime-types')
 
 const STORAGE_DIR = './storage_directory/'
 
 // serves the files in the STORAGE_DIR as static files at the /download endpoint
 app.use('/download', express.static(STORAGE_DIR))
 
-
+// dynamically calculates the LAN address of this server instance. useful because it relies upon the current computer's IP address. 
+//      And since this address is dynamically allocated it can't be hardcoded.
 const os = require('os')
 const SERVER_PORT = 5000
 const SERVER_ADDRESS = os.networkInterfaces()["Ethernet"][0].address
 const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
+
+
+function getFileCategoryFromFileName(filename) {
+    const mediaType = mime.lookup(filename)
+
+    console.log(mediaType)
+    try {
+        switch (mediaType.split("/", 2)[0]) {
+            default:
+                return "misc"
+            case "application":
+                return "app"
+            case "video":
+                return "video"
+            case "image":
+                return "image"
+            case "text":
+                return "text"
+            case "audio":
+                return "audio"
+        }
+    } catch {
+        // e.g. if mediaType is undefined or not a string
+        return "misc"
+    }
+    
+}
 
 
 async function getFileMetadata(filenames) {
@@ -34,11 +71,11 @@ async function getFileMetadata(filenames) {
                 "filename": filename,
                 "filesize": stats.size,
                 "uploadTimeEpochMs": stats.mtimeMs,
-                "fileCategory": "UNKNOWN",
+                "fileCategory": getFileCategoryFromFileName(filename),
                 "staticURL": `${SERVER_URL}/download/${filename}`
             }
         }))
-    
+
     return fileMetadataArr
 }
 
@@ -50,7 +87,7 @@ app.get("/api", async (req, res) => {
     // gets a list of filenames
     const filenames = await fs.readdir(STORAGE_DIR)
     // retrieves metadata for each of those files
-    res.send({files: await getFileMetadata(filenames)})
+    res.send({ files: await getFileMetadata(filenames) })
 })
 
 // setup middleware so that upon a POST request to the /upload endpoint the multipart/form-data is saved to the STORAGE_DIR directory.
@@ -97,7 +134,7 @@ app.delete("/delete", express.json(), async (req, res) => {
     const filename = req.body.filename
 
     fs.unlink(STORAGE_DIR + filename).then(
-        (result) => res.status(200).send({deletedFilename: filename}),
+        (result) => res.status(200).send({ deletedFilename: filename }),
         (result) => res.status(404).send({})
     )
 })
