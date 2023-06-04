@@ -4,7 +4,7 @@ import FileUploadForm from './FileUploadForm';
 
 const UploadSection = () => {
   return (
-    <Card>
+    <Card padding={2}>
         <FileUploadForm />
     </Card>
   );

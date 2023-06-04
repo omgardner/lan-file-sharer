@@ -1,8 +1,32 @@
 // initial code from: https://codefrontend.com/file-upload-reactjs/
-import { TextareaAutosize, Typography, Box, Grid, Button } from '@mui/material';
+import { TextareaAutosize, Typography, Box, Grid, Button, Card, TextField, Input, styled } from '@mui/material';
 import { ChangeEvent, useContext, useEffect, useReducer, useState } from 'react';
 import { SERVER_URL } from '../config';
 import { FileListDispatchContext } from './FileContext';
+
+
+
+
+
+
+
+// DEBUG
+const CustomTextarea = styled("textarea")(
+  ({ theme }) => `
+  resize: none;
+  border: none;
+  outline: none;  
+
+  ::placeholder {
+    text-align: center;
+    opacity: 0.6;
+    font-family: ${theme.typography.fontFamily};
+    
+  };
+  `
+)
+
+
 
 
 function FileUploadForm() {
@@ -69,6 +93,11 @@ function FileUploadForm() {
 
     // the form gets reset but the state variables need to be updated as well (since the onchange event doesn't trigger from the reset)
     setInputText("")
+    // the placeholder text for the textarea is faked, so some custom logic is needed to imitate the textarea being reset
+    document.getElementById("txtInput").hidden = true
+    document.getElementById("txtInputPlaceholder").hidden = false
+
+    // resetting the value of the state variables
     setInputTagFileList([])
     setDroppedFileList([])
     setFileQueueCount(0)
@@ -77,8 +106,10 @@ function FileUploadForm() {
 
 
   function handleInputTextChange(event) {
+    const newInputText = event.target.value
+
     // Nullish coalescing operator, if the left hand side of ?? is null or undefined then return the right hand side
-    setInputText(event.target.value ?? "")
+    setInputText(newInputText ?? "")
   }
 
   function handleDroppedFilesChange(event) {
@@ -98,87 +129,93 @@ function FileUploadForm() {
   function onDragOver(event) {
     // stops the dragged file from redirecting the page once dropped
     event.preventDefault()
-    console.log("Hi there!")
   }
 
 
 
+  function handleTextareaFocus() {
+    const txtInputEle = document.getElementById("txtInput")
+    const txtInputPlaceholderEle = document.getElementById("txtInputPlaceholder")
+    txtInputEle.hidden = false
+    txtInputPlaceholderEle.hidden = true
+    txtInputEle.focus()
+  }
 
+  function handleTextareaUnfocus() {
+    console.log("handleTextareaUnfocus")
+    console.log(inputText)
+    const txtInputEle = document.getElementById("txtInput")
+    const txtInputPlaceholderEle = document.getElementById("txtInputPlaceholder")
+
+    const isEmpty = inputText.length === 0
+
+    // if it's not empty, keep showing the textarea and hide the placeholder
+    // if it's not empty, hide the textarea and show the placeholder
+    txtInputEle.hidden = isEmpty
+    txtInputPlaceholderEle.hidden = !isEmpty
+  }
 
 
   return (
-    <Box
+
+    <Grid container columns={12}
       onDrop={handleDroppedFilesChange}
       onDragOver={onDragOver}
-      sx={{ display: 'flex', flexDirection: 'row', padding: 2 }}>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column', padding: 2 }}>
-        <textarea
-          id="txtInput"
-          onInput={handleInputTextChange}
-          placeholder='Paste or Type Some Text'
-          style={{ resize: 'none' }}
-        ></textarea>
-        <Box minWidth={64} minHeight={64} sx={{ backgroundColor: "#999999" }}>
-          <label htmlFor="uploaded_files" style={{ width: '100%', height: '100%', display: 'inline-block', textAlign: "center" }}>Upload Some Files</label>
-        </Box>
+      height="130px"
 
-        <input
-          id="uploaded_files"
-          type="file"
-          name="uploaded_files"
-          multiple
-          onChange={handleInputFilesChange}
-          style={{ display: 'none' }}
-        />
-      </Box>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 2 }}
-      >
-        {fileQueueCount > 0 ? (<p>{fileQueueCount} File(s) Queued</p>) : (<></>)}
+    >
+      <Grid item xs={5} padding={2} height="100%">
+        <Card
+          sx={{
+            width: '100%', height: "100%",
+            display: "flex", justifyContent: "center", alignItems: "center"
+          }}
+          onClick={handleTextareaFocus}
+        >
+          <CustomTextarea
+            id="txtInput"
+            hidden={true}
+            onInput={handleInputTextChange}
+            onBlur={handleTextareaUnfocus}
+            style={{ width: "100%", height: "100%" }}
+
+          ></CustomTextarea>
+          <Typography id="txtInputPlaceholder" variant="subtitle1" sx={{ textAlign: "center", opacity: 0.6 }}>Paste or Type Some Text</Typography>
+        </Card>
+
+      </Grid>
+      <Grid item xs={5} padding={2} height="100%">
+        <Card sx={{ height: "100%", width: "100%", backgroundColor: "#FFFFFF" }}>
+          <label htmlFor="uploaded_files" style={{ width: '100%', height: '100%', display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Typography variant="subtitle1" sx={{ textAlign: "center", opacity: 0.6 }}>Upload Some Files</Typography>
+          </label>
+          <input
+            id="uploaded_files"
+            type="file"
+            name="uploaded_files"
+            multiple
+            onChange={handleInputFilesChange}
+            style={{ display: 'none' }}
+          />
+        </Card>
+      </Grid>
+
+      <Grid item xs={2} padding={2} height="100%">
+        <Card sx={{ height: "100%", width: "100%", backgroundColor: "#eeeeee", display: "flex", flexDirection: "column" , justifyContent: "center", alignItems: "center" }}> 
+        
+        {inputText.length > 0 ? (<Typography>Text Queued</Typography>) : (<Typography style={{ opacity: 0 }}>No Text Queued</Typography>)}
         <Button variant="contained" onClick={handleSubmit} >Upload Data</Button>
-        {inputText.length > 0 ? (<p>Text Queued</p>) : (<></>)}
-      </Box>
-    </Box>
+        {fileQueueCount > 0 ? (<Typography>{fileQueueCount} File(s) Queued</Typography>) : (<Typography style={{ opacity: 0 }}>No Files Queued</Typography>)}
+          
+        </Card>
+      </Grid>
+
+    </Grid>
+
+
+
+
   );
 }
 
-
-//<input type="text" placeholder='Paste Some Text' id="inputText" onChange={handleInputTextChange}/>
-
-
 export default FileUploadForm;
-
-
-
-
-
-
-/* <Grid container>
-      <form method="POST" encType="multipart/form-data" onSubmit={handleSubmit}>
-        <Box
-          id="target"
-          onDrop={handleDroppedFilesChange}
-          onDragOver={onDragOver}
-          sx={{ display: 'flex', flexDirection: 'row' }}
-          xs={4}
-        >
-
-          <textarea
-            onInput={handleInputTextChange}
-            placeholder='Paste or Type Some Text'
-            style={{ resize: 'none' }}
-          ></textarea>
-          <input type="file" name="uploaded_files" multiple onChange={handleInputFilesChange} />
-        </Box>
-
-        <Box
-          sx={{ display: 'flex', flexDirection: 'column' }}
-          xs={6}
-        >
-          {fileQueueCount > 0 ? (<p>{fileQueueCount} File(s) Queued</p>) : (<></>)}
-          <input type="submit" value="Upload Data" />
-          {inputText.length > 0 ? (<p>Text Queued</p>) : (<></>)}
-        </Box>
-      </form>
-    </Grid> */
