@@ -67,7 +67,7 @@ const DownloadItem = ({ fileMetadata }) => {
         <FileCategoryBox fileCategory={fileMetadata.fileCategory}/>
           
         </Grid>
-        <Grid item xs={2.5}>
+        <Grid item xs={3}>
           <Box sx={{ display: 'flex', flexDirection: 'column', }}>
 
             <Typography variant='body1'>
@@ -78,7 +78,7 @@ const DownloadItem = ({ fileMetadata }) => {
             </Typography>
           </Box>
         </Grid>
-        <Grid item xs={5.5}>
+        <Grid item xs={5}>
           <DownloadItemInteractions fileMetadata={fileMetadata} />
         </Grid>
       </Grid>
@@ -87,10 +87,3 @@ const DownloadItem = ({ fileMetadata }) => {
 }
 
 export default DownloadItem;
-
-// <CardMedia
-//               component="img"
-//               sx={{ width: '80%', maxWidth: "64px" }}
-//               image="/logo192.png"
-//               alt="this is a test"
-//             />

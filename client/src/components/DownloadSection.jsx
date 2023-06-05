@@ -1,11 +1,11 @@
-import { Card, Box, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Button, Card, Grid, IconButton, Typography } from '@mui/material';
 import DownloadItem from './DownloadItem';
 import { useContext, useEffect, useState } from 'react';
 import DownloadSortAndFilter from './DownloadSortAndFilter';
 import { SERVER_URL } from '../config';
 import { FileListContext, FileListDispatchContext } from './FileContext';
 
-
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 
 const DownloadSection = () => {
@@ -31,7 +31,8 @@ const DownloadSection = () => {
   const [sortBy, setSortBy] = useState(defaultSortBy)
   const [isAscending, setIsAscending] = useState(defaultIsAscending)
 
-  function onSortChange (sortBy, isAscending) {
+  function onSortChange(sortBy, isAscending) {
+    // handles the raised state
     setSortBy(sortBy)
     setIsAscending(isAscending)
   }
@@ -45,11 +46,19 @@ const DownloadSection = () => {
 
   return (
     <Card>
-      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-        <h1>Download Section</h1>
-        <button onClick={reloadData}>Refresh</button>
-        <DownloadSortAndFilter onSortChange={onSortChange} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending} />
-      </Box>
+      <Grid container padding={1} sx={{ display: "flex", alignItems: "center" }}>
+        <Grid item xs={4}>
+          <Typography variant="h5" textAlign={"center"} >Downloads</Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <IconButton color="primary" aria-label="Reload files" onClick={reloadData} sx={{border: 1, borderColor: "#AAAAAA"}} size="large">
+            <RefreshIcon />
+          </IconButton>
+        </Grid>
+        <Grid item xs={6}>
+          <DownloadSortAndFilter onSortChange={onSortChange} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending} />
+        </Grid>
+      </Grid>
 
       {
         (typeof fileMetadataArr === 'undefined') ? (
@@ -69,3 +78,10 @@ const DownloadSection = () => {
 }
 
 export default DownloadSection;
+
+
+/* <Box sx={{ padding:1, display: 'flex', flexDirection: "row", alignItems: "center", justifyContent:"space-between"}}>
+        <Typography variant="h5">Downloads</Typography>
+        <button onClick={reloadData}>Refresh</button>
+        <DownloadSortAndFilter onSortChange={onSortChange} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending}  />
+      </Box> */

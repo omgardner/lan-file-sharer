@@ -1,6 +1,6 @@
 import { Card, CssBaseline, Grid, ThemeProvider, createTheme } from '@mui/material';
 import './App.css';
-import Header from './components/HeaderSection';
+import HeaderSection from './components/HeaderSection';
 import DownloadSection from './components/DownloadSection';
 import UploadSection from './components/UploadSection';
 import { FileListProvider } from './components/FileContext';
@@ -12,7 +12,7 @@ const theme = createTheme({
     mode: 'light',
   },
 });
-
+console.log(theme)
 
 const App = () => {
 
@@ -23,8 +23,8 @@ const App = () => {
         columns={{ xs: 8, sm: 8, md: 8, lg: 12 }}
         justifyContent="center"
       >
-        <Grid item xs={12}>
-          <Header />
+        <Grid item xs={8} lg={12}>
+          <HeaderSection />
         </Grid>
         <Grid item xs={8}>
           <FileListProvider>
