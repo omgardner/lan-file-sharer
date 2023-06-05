@@ -1,35 +1,16 @@
-// initial code from: https://codefrontend.com/file-upload-reactjs/
-import { TextareaAutosize, Typography, Box, Grid, Button, Card, TextField, Input, styled } from '@mui/material';
-import { ChangeEvent, useContext, useEffect, useReducer, useState } from 'react';
+import { Typography, Grid, Button, Card } from '@mui/material';
+import { useContext, useEffect, useState } from 'react';
 import { SERVER_URL } from '../config';
 import { FileListDispatchContext } from './FileContext';
 
 
-
-
-
-
-
-// // DEBUG
-// const CustomTextarea = styled("textarea")(
-//   ({ theme }) => `
-//   resize: none;
-//   border: none;
-//   outline: none;  
-
-//   ::placeholder {
-//     text-align: center;
-//     opacity: 0.6;
-//     font-family: ${theme.typography.fontFamily};
-
-//   };
-//   `
-// )
-
-
-
-
 function FileUploadForm() {
+  /** Component contains all UI elements for uploading files and text to the server
+   *  
+   * It is heavily modified from the starting code, sourced from: https://codefrontend.com/file-upload-reactjs/
+   */
+  
+  // this allows us to dynamically update the displayed files using the combination of a reducer and context
   const dispatch = useContext(FileListDispatchContext)
 
   // note: since an empty FileList can't be constructed I've used an empty array as the default state value instead. This is sufficient for my use case because both support 
@@ -54,21 +35,21 @@ function FileUploadForm() {
     const formData = new FormData()
 
     // add the files from both possible methods of adding files
+
+    // files from the file-browser menu, when clicking on the file upload card
     for (const file of inputTagFileList) {
       formData.append("uploaded_files", file);
     }
 
+    // drag & drop files, when ... dragging a file from the desktop or a GUI file explorer and dropping the files into the file upload card 
     for (const file of droppedFileList) {
       formData.append("uploaded_files", file);
     }
 
-
-    // add the text if any
-    // note: i'm starting to see the benefit of using typescript across this whole component
-    if (typeof inputText !== 'undefined' && inputText.length > 0) {
+    // adds text to the form as well if there is any
+    if (inputText.length > 0) {
       formData.append("uploaded_text", inputText)
     }
-
 
     // AJAX HTTP POST request
     fetch(SERVER_URL + "/upload",
@@ -80,10 +61,7 @@ function FileUploadForm() {
       .then((result) => result.json())
       .then((data) => {
         // returns the metadata for the files that have been added, so that the file list can be updated locally without another /api call
-        console.log('Successful upload, updating the file list');
         dispatch({ type: 'uploaded', uploadedFileMetadataArr: data })
-
-        // resetting everything now that it's already been submitted
 
         // the placeholder text for the textarea is faked, so some custom logic is needed to imitate the textarea being reset
         document.getElementById("txtInput").value = ""
@@ -119,14 +97,7 @@ function FileUploadForm() {
     // stops the dragged file from redirecting the page once dropped
     event.preventDefault()
 
-    // Nullish coalescing operator
     setDroppedFileList(event.dataTransfer.files ?? [])
-  }
-
-  function handleInputFilesChange(event) {
-    // Nullish coalescing operator
-    // this prevents bugs when event.target.files is undefined
-    setInputTagFileList(event.target.files ?? [])
   }
 
   function onDragOver(event) {
@@ -134,11 +105,13 @@ function FileUploadForm() {
     event.preventDefault()
   }
 
-
+  function handleInputFilesChange(event) {
+    // this prevents bugs when event.target.files is undefined
+    setInputTagFileList(event.target.files ?? [])
+  }
 
   function handleTextareaFocus() {
     // the entire goal behind this is to imitate a textinput's placeholder text but to style the text however I want (horizontally and vertically centered)
-
     const txtInputEle = document.getElementById("txtInput")
     const txtInputPlaceholderEle = document.getElementById("txtInputPlaceholder")
 
@@ -149,7 +122,7 @@ function FileUploadForm() {
   }
 
   function handleTextareaUnfocus() {
-
+    // the entire goal behind this is to imitate a textinput's placeholder text but to style the text however I want (horizontally and vertically centered)
     const txtInputEle = document.getElementById("txtInput")
     const txtInputPlaceholderEle = document.getElementById("txtInputPlaceholder")
 
@@ -185,7 +158,6 @@ function FileUploadForm() {
             ></textarea>
             <Typography id="txtInputPlaceholder" variant="subtitle1" sx={{ textAlign: "center", opacity: 0.6 }}>Paste or Type Some Text</Typography>
           </Card>
-
         </Grid>
 
         <Grid item xs={12} md={6} padding={1} >
@@ -204,24 +176,15 @@ function FileUploadForm() {
           </Card>
         </Grid>
       </Grid>
+
       <Grid item xs={6} md={3} padding={1} height="100%">
         <Card sx={{ height: "100%", width: "100%", backgroundColor: "#eeeeee", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-
           {inputText.length > 0 ? (<Typography>Text Queued</Typography>) : (<Typography style={{ opacity: 0 }}>No Text Queued</Typography>)}
-          <Button variant="contained" onClick={handleSubmit} sx={{margin:1}} disabled={inputText.length === 0 && fileQueueCount === 0}>Upload Data</Button>
+          <Button variant="contained" onClick={handleSubmit} sx={{ margin: 1 }} disabled={inputText.length === 0 && fileQueueCount === 0}>Upload Data</Button>
           {fileQueueCount > 0 ? (<Typography>{fileQueueCount} File(s) Queued</Typography>) : (<Typography style={{ opacity: 0 }}>No Files Queued</Typography>)}
-
         </Card>
       </Grid>
-
     </Grid>
-
-
-
-
-
-
-
   );
 }
 

@@ -5,8 +5,6 @@ import DownloadSection from './components/DownloadSection';
 import UploadSection from './components/UploadSection';
 import { FileListProvider } from './components/FileContext';
 
-
-
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -43,9 +41,3 @@ const App = () => {
 }
 
 export default App;
-
-/* <Grid container
-        spacing={{ xs: 1, md: 1.5 }}
-        columns={{ xs: 4, sm: 8, md: 12 }}
-        justifyContent="center"
-      ></Grid> */

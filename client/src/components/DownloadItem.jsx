@@ -1,18 +1,13 @@
-import { Card, CardMedia, CardContent, Box, Typography, Grid } from '@mui/material';
+import { Card, Box, Typography, Grid } from '@mui/material';
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import DownloadItemInteractions from './DownloadItemInteractions';
-
 import FileCategoryBox from './FileCategoryBox';
-
-
-
 
 dayjs.extend(relativeTime)
 
-
 function prettyFilesize(sizeBytes) {
-  // Honestly it seems like the cleanest way to do this.
+  // turns the number of bytes into a pretty string in reasonable units
   var tmp = sizeBytes
   const cutoff = 1024
 
@@ -45,22 +40,18 @@ function prettyFilesize(sizeBytes) {
 
 }
 
-const DownloadItem = ({ fileMetadata }) => {
-
-  const fullFilename = fileMetadata.filename
-  const truncateAfterNChars = 100 // DEBUG
-
-  // truncates very long filenames so that they easily fit onto the screen
-  const displayedFilename = fullFilename.slice(0, truncateAfterNChars) + (fullFilename.length > truncateAfterNChars ? "..." : "")
-
+function DownloadItem({fileMetadata}) {
+  /**
+   * The UI Element that represents a downloaded file
+   */
   const displayedTimeSinceLastModification = dayjs(fileMetadata.uploadTimeEpochMs).fromNow()
 
   return (
     <Card sx={{ padding: 1 }}>
       <Grid container>
         <Grid item xs={12} >
-          <Typography variant='h6' title={fullFilename} noWrap={true}>
-            {displayedFilename}
+          <Typography variant='h6' title={fileMetadata.filename} noWrap={true}>
+            {fileMetadata.filename}
           </Typography>
         </Grid>
         <Grid item xs={3}>

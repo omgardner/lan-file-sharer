@@ -2,22 +2,17 @@
 const express = require('express')
 const app = express()
 
-
-
-
 // allowing CORS, for communicating with the client that is on a different domain
 const cors = require('cors')
 app.use(cors())
-
 
 // handling files and file metadata
 const fs = require('fs/promises')
 const multer = require('multer')
 var mime = require('mime-types')
 
-const STORAGE_DIR = './storage_directory/'
-
 // serves the files in the STORAGE_DIR as static files at the /download endpoint
+const STORAGE_DIR = './storage_directory/'
 app.use('/download', express.static(STORAGE_DIR))
 
 // dynamically calculates the LAN address of this server instance. useful because it relies upon the current computer's IP address. 
@@ -29,9 +24,9 @@ const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
 
 
 function getFileCategoryFromFileName(filename) {
+    // uses the mediatype to create a categorisation for each file, used by the client to display relevant file icons next to each file
     const mediaType = mime.lookup(filename)
 
-    console.log(mediaType)
     try {
         switch (mediaType.split("/", 2)[0]) {
             default:
@@ -56,7 +51,7 @@ function getFileCategoryFromFileName(filename) {
 
 
 async function getFileMetadata(filenames) {
-    /*  uses those filenames to get stats for each file, and gets an array containing each file's metadata
+    /*  Uses an array of filenames to get stats for each file, and returns an array of objects containing each file's metadata
     
         NOTE: promises aren't resolved when awaited inside an 'array.map', so you need to resolve them on the outside.
             Also, 'Promise.all' is itself a promise, meaning you need to wait for it to be resolved by using 'await'
@@ -82,8 +77,6 @@ async function getFileMetadata(filenames) {
 
 // for early testing i only need the one backend API endpoint
 app.get("/api", async (req, res) => {
-    console.log("received request to /api")
-
     // gets a list of filenames
     const filenames = await fs.readdir(STORAGE_DIR)
     // retrieves metadata for each of those files
@@ -109,8 +102,6 @@ function getEpochTime() {
 app.post("/upload", upload.array("uploaded_files"), async (req, res) => {
     // the multer upload object is middleware before this current callback function. 
     // This means that the file(s), if any, are already uploaded by this point.
-    console.log(req.files)
-
     const uploadedFilenames = req.files.map((ele) => ele.originalname)
 
     // this callback function part involves saving the uploaded text into a text file.
@@ -126,11 +117,11 @@ app.post("/upload", upload.array("uploaded_files"), async (req, res) => {
 
     // returns the file metadata for each of the newly added files
     res.send(await getFileMetadata(uploadedFilenames))
-
 })
 
 
 app.delete("/delete", express.json(), async (req, res) => {
+    // deletes a file, then tells the client which specific file was deleted
     const filename = req.body.filename
 
     fs.unlink(STORAGE_DIR + filename).then(
@@ -138,7 +129,5 @@ app.delete("/delete", express.json(), async (req, res) => {
         (result) => res.status(404).send({})
     )
 })
-
-
 
 app.listen(SERVER_PORT, () => console.log(`Listening on ${SERVER_URL}`))

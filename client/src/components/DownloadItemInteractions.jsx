@@ -3,76 +3,35 @@ import React, { useContext } from 'react'
 import { SERVER_URL } from '../config';
 import { FileListDispatchContext } from './FileContext';
 
-
-
 function DownloadItemInteractions({ fileMetadata }) {
 
     const dispatch = useContext(FileListDispatchContext)
 
     async function copyFileToClipboard() {
-        // const imgURL = fileMetadata.staticURL;
-        // const data = await fetch(imgURL);
-        // const blob = await data.blob();
-        // const fr = new FileReader()
-        // fr.readAsDataURL(blob)
-        // fr.onload =  (e) => {
-        //     console.log('DataURL:', e.target.result);
-        //     navigator.clipboard.writeText   (e.target.result)
-        // }
-
-
-
+        // TODO: this currently does not work due to the lack of a secure context
+        // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
         try {
             const text = await fetch(fileMetadata.staticURL).then(x => x.text())
-            //const data = await fetch(imgURL)
-            //const blob = await data.blob()
-            //console.log(data.headers.get("Content-Type"),blob.type)
-            //console.log(text.slice(0,50)+`... (len=${text.length})`)
-            //console.log(imgURL)
+
             console.log(navigator)
             navigator.clipboard.writeText(text)
-            // await navigator.clipboard.write([
-            //     new ClipboardItem({
-            //         [`${blob.type}`]: blob,
-            //     }),
-            // ]);
             console.log("Fetched text file copied as raw text.");
         } catch (err) {
             console.error(err.name, err.message);
         }
     }
 
-    //     try {
-    //         const imgURL = fileMetadata.staticURL;
-    //         const data = await fetch(imgURL);
-
-    //         const blob = await data.blob()
-    //         console.log(blob)
-
-    //         await navigator.clipboard.write([
-    //             new ClipboardItem({
-    //                 [`web ${blob.type}`]: blob,
-    //             }),
-    //         ]);
-    //         console.log("Fetched image copied.");
-    //     } catch (err) {
-    //         console.error(err.name, err.message);
-    //     }
-    // }
-
-
-
-
-    // debug just copying the filename to clipboard
-    //navigator.clipboard.writeText(fileMetadata.filename);
-
-
     function downloadToDevice() {
+        /**Downloads the file to the browser, then makes the browser click a link with the file blob attached in order to get the actual download functionality to work.
+         * Notes:
+         *  - I couldn't get the Preview button to work when using the `Content-Disposition: attachment` approach.
+         *  - Modified code from the source: https://stackoverflow.com/questions/50694881/how-to-download-file-in-react-js
+        */
 
         fetch(fileMetadata.staticURL)
             .then((res) => res.blob())
             .then((blob) => {
-                // based around https://stackoverflow.com/questions/50694881/how-to-download-file-in-react-js
+                // this code enables a button click to download a file
                 const fileURL = window.URL.createObjectURL(blob);
                 let link = document.createElement('a');
 
@@ -91,7 +50,7 @@ function DownloadItemInteractions({ fileMetadata }) {
     }
 
     function deleteFile() {
-
+        /**Deletes a file from the server. If successful it then sends off a dispatch action to remove the corresponding DownloadItem*/
         fetch(SERVER_URL + "/delete ",
             {
                 method: "DELETE",
@@ -110,13 +69,10 @@ function DownloadItemInteractions({ fileMetadata }) {
             });
     }
 
-
-
-
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: "wrap"}} >
+        <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: "wrap" }} >
             <div>
-            <Button variant="outlined" size='medium' onClick={copyFileToClipboard}>Copy</Button>
+                <Button variant="outlined" size='medium' onClick={copyFileToClipboard}>Copy</Button>
             </div>
             <div>
                 <Button variant="outlined" size='medium' onClick={downloadToDevice}>Download</Button>

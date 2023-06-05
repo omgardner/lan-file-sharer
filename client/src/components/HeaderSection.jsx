@@ -1,6 +1,5 @@
-import {Box,  Card, Typography, CardContent } from '@mui/material';
+import { Card, Typography, CardContent } from '@mui/material';
 
-// https://mui.com/material-ui/react-card/#ui-controls
 const HeaderSection = () => {
     return (
         <Card>

@@ -12,6 +12,7 @@ import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 import { Box, Typography } from '@mui/material';
 
 function FileCategoryBox({ fileCategory }) {
+    /**Contains the file category text and a corresponding icon for each DownloadItem */
     const iconSx = { "fontSize": 60 }
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

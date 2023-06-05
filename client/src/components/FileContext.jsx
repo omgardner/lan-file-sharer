@@ -1,6 +1,9 @@
 import { createContext, useReducer } from "react";
 
-export const FileListContext = createContext()
+/** FileListProvidercombines a reducer and a context together, in order to let any component dispatch an update to the displayed download file list. */
+
+
+export const FileListContext = createContext(null)
 export const FileListDispatchContext = createContext(null)
 
 export function FileListProvider({children}) {
@@ -16,7 +19,6 @@ export function FileListProvider({children}) {
 
 
 }
-
 
 export function fileListReducer(fileMetadataArr, action) {
     console.log("inside fileListReducer")

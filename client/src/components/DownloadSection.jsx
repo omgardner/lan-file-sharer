@@ -1,14 +1,20 @@
-import { Button, Card, Grid, IconButton, Typography } from '@mui/material';
-import DownloadItem from './DownloadItem';
+import { Card, Grid, IconButton, Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
+
+
+import DownloadItem from './DownloadItem';
 import DownloadSortAndFilter from './DownloadSortAndFilter';
-import { SERVER_URL } from '../config';
 import { FileListContext, FileListDispatchContext } from './FileContext';
 
+import { SERVER_URL } from '../config';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-
 const DownloadSection = () => {
+  /**Contains everything related to the downloaded file list
+   * It renders the fileMetadataArr as DownloadItem components and sorts the elements.
+   */
+
+
   // handle initial retrieval of the data
   const fileMetadataArr = useContext(FileListContext)
   const dispatch = useContext(FileListDispatchContext)
@@ -64,8 +70,6 @@ const DownloadSection = () => {
         (typeof fileMetadataArr === 'undefined') ? (
           <p>Scanning for file updates...</p>
         ) : (
-
-
           fileMetadataArr
             .sort(sortingFunctionMapping[sortBy])
             .map((fileMetadata, i) => {
@@ -77,11 +81,4 @@ const DownloadSection = () => {
   );
 }
 
-export default DownloadSection;
-
-
-/* <Box sx={{ padding:1, display: 'flex', flexDirection: "row", alignItems: "center", justifyContent:"space-between"}}>
-        <Typography variant="h5">Downloads</Typography>
-        <button onClick={reloadData}>Refresh</button>
-        <DownloadSortAndFilter onSortChange={onSortChange} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending}  />
-      </Box> */
+export default DownloadSection
