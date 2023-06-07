@@ -11,14 +11,16 @@ import MusicNoteOutlinedIcon from '@mui/icons-material/MusicNoteOutlined';
 // ui components
 import { Box, Typography } from '@mui/material';
 
-function FileCategoryBox({ fileCategory }) {
+function FileCategoryBox({ fileMetadata }) {
     /**Contains the file category text and a corresponding icon for each DownloadItem */
     const iconSx = { "fontSize": 60 }
+    const filenameSplit = fileMetadata.filename.split(".")
+    const fileExtension = filenameSplit[filenameSplit.length - 1] // gets the last element
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {
                 (() => {
-                    switch (fileCategory) {
+                    switch (fileMetadata.fileCategory) {
                         default:
                             return <MiscellaneousServicesOutlinedIcon sx={iconSx} />
                         case "app":
@@ -35,7 +37,7 @@ function FileCategoryBox({ fileCategory }) {
                 })()
             }
             <Typography variant='subtitle2' noWrap={true}>
-                {fileCategory.toUpperCase()}    
+                {fileExtension.toUpperCase()}    
             </Typography>
 
         </Box>

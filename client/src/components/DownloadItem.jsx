@@ -55,7 +55,7 @@ function DownloadItem({fileMetadata}) {
           </Typography>
         </Grid>
         <Grid item xs={3}>
-        <FileCategoryBox fileCategory={fileMetadata.fileCategory}/>
+        <FileCategoryBox fileMetadata={fileMetadata}/>
           
         </Grid>
         <Grid item xs={3}>
