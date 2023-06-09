@@ -1,7 +1,7 @@
 import { Typography, Grid, Button, Card } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { SERVER_URL } from '../config';
-import { FileListDispatchContext } from './FileContext';
+import { FileListDispatchContext } from './contexts/FileContext';
 
 
 function FileUploadForm() {

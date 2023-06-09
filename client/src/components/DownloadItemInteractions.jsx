@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 import React, { useContext } from 'react'
 import { SERVER_URL } from '../config';
-import { FileListDispatchContext } from './FileContext';
+import { FileListDispatchContext } from './contexts/FileContext';
 
 function DownloadItemInteractions({ fileMetadata }) {
 

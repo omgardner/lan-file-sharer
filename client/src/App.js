@@ -3,7 +3,9 @@ import './App.css';
 import HeaderSection from './components/HeaderSection';
 import DownloadSection from './components/DownloadSection';
 import UploadSection from './components/UploadSection';
-import { FileListProvider } from './components/FileContext';
+import { FileListProvider } from './components/contexts/FileContext';
+import { SnackbarProvider } from './components/contexts/SnackbarContext';
+import ActionSnackbar from './components/ActionSnackbar';
 
 const theme = createTheme({
   palette: {
@@ -26,14 +28,15 @@ const App = () => {
         </Grid>
         <Grid item xs={8}>
           <FileListProvider>
-            <Card>
-
-              <UploadSection />
-
-              <DownloadSection />
-
-            </Card>
+            <SnackbarProvider>
+              <Card>
+                <UploadSection />
+                <DownloadSection />
+              </Card>
+              <ActionSnackbar/>
+            </SnackbarProvider>
           </FileListProvider>
+
         </Grid>
       </Grid>
     </ThemeProvider >
