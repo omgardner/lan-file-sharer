@@ -1,11 +1,9 @@
 import { Box, Button } from '@mui/material'
-import React, { useContext } from 'react'
+import React from 'react'
 import { SERVER_URL } from '../config';
-import { FileListDispatchContext } from './FileContext';
 
 function DownloadItemInteractions({ fileMetadata }) {
 
-    const dispatch = useContext(FileListDispatchContext)
 
     async function copyFileToClipboard() {
         // TODO: this currently does not work due to the lack of a secure context
@@ -50,19 +48,13 @@ function DownloadItemInteractions({ fileMetadata }) {
     }
 
     function deleteFile() {
-        /**Deletes a file from the server. If successful it then sends off a dispatch action to remove the corresponding DownloadItem*/
         fetch(SERVER_URL + "/delete ",
             {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ "filename": fileMetadata.filename })
             }
-        ).then((result) => result.json())
-            .then((data) => {
-                console.log('Success, removing the file from the local array')
-                dispatch({ type: 'deleted', deletedFilename: data.deletedFilename })
-
-            })
+        )
             .catch((error) => {
                 console.error('Error:', error);
 

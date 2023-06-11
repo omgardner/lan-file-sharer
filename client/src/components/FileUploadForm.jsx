@@ -1,7 +1,6 @@
 import { Typography, Grid, Button, Card } from '@mui/material';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SERVER_URL } from '../config';
-import { FileListDispatchContext } from './FileContext';
 
 
 function FileUploadForm() {
@@ -10,8 +9,6 @@ function FileUploadForm() {
    * It is heavily modified from the starting code, sourced from: https://codefrontend.com/file-upload-reactjs/
    */
   
-  // this allows us to dynamically update the displayed files using the combination of a reducer and context
-  const dispatch = useContext(FileListDispatchContext)
 
   // note: since an empty FileList can't be constructed I've used an empty array as the default state value instead. This is sufficient for my use case because both support 
   //  (a) the .length property and 
@@ -57,11 +54,8 @@ function FileUploadForm() {
         method: "POST",
         body: formData
       }
-    )
-      .then((result) => result.json())
-      .then((data) => {
+    ).then(() => {
         // returns the metadata for the files that have been added, so that the file list can be updated locally without another /api call
-        dispatch({ type: 'uploaded', uploadedFileMetadataArr: data })
 
         // the placeholder text for the textarea is faked, so some custom logic is needed to imitate the textarea being reset
         document.getElementById("txtInput").value = ""
