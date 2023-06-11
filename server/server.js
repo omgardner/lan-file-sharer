@@ -17,9 +17,9 @@ app.use('/download', express.static(STORAGE_DIR))
 
 // dynamically calculates the LAN address of this server instance. useful because it relies upon the current computer's IP address. 
 //      And since this address is dynamically allocated it can't be hardcoded.
-const os = require('os')
+const ip = require('ip')
 const SERVER_PORT = 5000
-const SERVER_ADDRESS = os.networkInterfaces()["Ethernet"][0].address
+const SERVER_ADDRESS = ip.address()
 const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
 
 
