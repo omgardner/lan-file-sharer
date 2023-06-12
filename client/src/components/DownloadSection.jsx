@@ -1,4 +1,4 @@
-import { Card, Grid, IconButton, Typography } from '@mui/material';
+import { Card, Grid, Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 
 
@@ -7,7 +7,6 @@ import DownloadSortAndFilter from './DownloadSortAndFilter';
 import { FileListContext, FileListDispatchContext } from './FileContext';
 
 import { SERVER_URL } from '../config';
-import RefreshIcon from '@mui/icons-material/Refresh';
 
 const DownloadSection = () => {
   /**Contains everything related to the downloaded file list
@@ -21,13 +20,12 @@ const DownloadSection = () => {
 
   const [ listening, setListening ] = useState(false)
 
-  // todo: what this do? describe it to me please 
+  // listens for Server-Side Events, and dispatches any messages so that the Downloaded File list gets dynamically updated.
   useEffect( () => {
     if (!listening) {
       const events = new EventSource(SERVER_URL + "/file-events")
 
       events.onmessage = (event) => {
-        console.log(event)
         const newEventData = JSON.parse(event.data);
         fileListDispatch(newEventData)      
       }
@@ -35,18 +33,6 @@ const DownloadSection = () => {
       setListening(true)
     }
   }, [])
-
-
-  // function reloadData() {
-  //   fetch(SERVER_URL + "/api")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       dispatch({ type: 'reloaded', fileMetadataArr: data.files })
-  //     })
-  // }
-
-  // // reload the data the first time this component is created
-  // useEffect(reloadData, [])
 
   // allows for dynamic adjustment of the sorting order for the DownloadItem components
   const defaultSortBy = "uploadDate"
@@ -74,9 +60,6 @@ const DownloadSection = () => {
         <Grid item xs={4}>
           <Typography variant="h5" textAlign={"center"} >Downloads</Typography>
         </Grid>
-        <Grid item xs={2}>
-          
-        </Grid>
         <Grid item xs={6}>
           <DownloadSortAndFilter onSortChange={onSortChange} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending} />
         </Grid>
@@ -98,7 +81,3 @@ const DownloadSection = () => {
 }
 
 export default DownloadSection
-
-/* <IconButton color="primary" aria-label="Reload files" onClick={reloadData} sx={{border: 1, borderColor: "#AAAAAA"}} size="large">
-  <RefreshIcon />
-</IconButton> */

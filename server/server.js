@@ -142,7 +142,6 @@ app.delete("/delete", express.json(), async (req, res) => {
         res.status(418).end()
     })
 
-
     // tells the client that the data was deleted successfully
     res.status(200).end()
 })
