@@ -21,16 +21,12 @@ export function FileListProvider({children}) {
 }
 
 export function fileListReducer(fileMetadataArr, action) {
-    console.log("inside fileListReducer")
-    console.log(fileMetadataArr, action)
+    console.log(action)
     switch (action.type) {
         case 'uploaded': {
             return [...fileMetadataArr, ...action.uploadedFileMetadataArr]
         }
         case 'deleted': {
-            console.log("debug deleted")
-            console.log(action.deletedFilename)
-            console.log(fileMetadataArr)
             return fileMetadataArr.filter((fileMetadata) => fileMetadata.filename !== action.deletedFilename)
         }
         case 'reloaded': {

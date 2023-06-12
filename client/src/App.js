@@ -9,8 +9,7 @@ const theme = createTheme({
   palette: {
     mode: 'light',
   },
-});
-console.log(theme)
+})
 
 const App = () => {
 

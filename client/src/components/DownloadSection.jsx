@@ -17,18 +17,36 @@ const DownloadSection = () => {
 
   // handle initial retrieval of the data
   const fileMetadataArr = useContext(FileListContext)
-  const dispatch = useContext(FileListDispatchContext)
+  const fileListDispatch = useContext(FileListDispatchContext)
 
-  function reloadData() {
-    fetch(SERVER_URL + "/api")
-      .then((res) => res.json())
-      .then((data) => {
-        dispatch({ type: 'reloaded', fileMetadataArr: data.files })
-      })
-  }
+  const [ listening, setListening ] = useState(false)
 
-  // reload the data the first time this component is created
-  useEffect(reloadData, [])
+  // todo: what this do? describe it to me please 
+  useEffect( () => {
+    if (!listening) {
+      const events = new EventSource(SERVER_URL + "/file-events")
+
+      events.onmessage = (event) => {
+        console.log(event)
+        const newEventData = JSON.parse(event.data);
+        fileListDispatch(newEventData)      
+      }
+
+      setListening(true)
+    }
+  }, [])
+
+
+  // function reloadData() {
+  //   fetch(SERVER_URL + "/api")
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       dispatch({ type: 'reloaded', fileMetadataArr: data.files })
+  //     })
+  // }
+
+  // // reload the data the first time this component is created
+  // useEffect(reloadData, [])
 
   // allows for dynamic adjustment of the sorting order for the DownloadItem components
   const defaultSortBy = "uploadDate"
@@ -57,9 +75,7 @@ const DownloadSection = () => {
           <Typography variant="h5" textAlign={"center"} >Downloads</Typography>
         </Grid>
         <Grid item xs={2}>
-          <IconButton color="primary" aria-label="Reload files" onClick={reloadData} sx={{border: 1, borderColor: "#AAAAAA"}} size="large">
-            <RefreshIcon />
-          </IconButton>
+          
         </Grid>
         <Grid item xs={6}>
           <DownloadSortAndFilter onSortChange={onSortChange} defaultSortBy={defaultSortBy} defaultIsAscending={defaultIsAscending} />
@@ -82,3 +98,7 @@ const DownloadSection = () => {
 }
 
 export default DownloadSection
+
+/* <IconButton color="primary" aria-label="Reload files" onClick={reloadData} sx={{border: 1, borderColor: "#AAAAAA"}} size="large">
+  <RefreshIcon />
+</IconButton> */

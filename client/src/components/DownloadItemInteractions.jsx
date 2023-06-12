@@ -11,9 +11,7 @@ function DownloadItemInteractions({ fileMetadata }) {
         try {
             const text = await fetch(fileMetadata.staticURL).then(x => x.text())
 
-            console.log(navigator)
             navigator.clipboard.writeText(text)
-            console.log("Fetched text file copied as raw text.");
         } catch (err) {
             console.error(err.name, err.message);
         }

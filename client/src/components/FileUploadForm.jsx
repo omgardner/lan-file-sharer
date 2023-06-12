@@ -53,9 +53,8 @@ function FileUploadForm() {
       {
         method: "POST",
         body: formData
-      }
-    ).then(() => {
-        // returns the metadata for the files that have been added, so that the file list can be updated locally without another /api call
+      }).then((data) => {
+        //returns the metadata for the files that have been added, so that the file list can be updated locally without another /api call
 
         // the placeholder text for the textarea is faked, so some custom logic is needed to imitate the textarea being reset
         document.getElementById("txtInput").value = ""
@@ -69,11 +68,28 @@ function FileUploadForm() {
         // resetting the value of the state variables
         setInputTagFileList([])
         setDroppedFileList([])
-        setFileQueueCount(0)
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      })
+        setFileQueueCount(0)}
+      )
+    // ).then((res) => {
+    //     // returns the metadata for the files that have been added, so that the file list can be updated locally without another /api call
+
+    //     // the placeholder text for the textarea is faked, so some custom logic is needed to imitate the textarea being reset
+    //     document.getElementById("txtInput").value = ""
+
+    //     // changing the value doesn't trigger the onInput event, so we're manually setting the new state
+    //     setInputText("")
+
+    //     document.getElementById("txtInput").hidden = true
+    //     document.getElementById("txtInputPlaceholder").hidden = false
+
+    //     // resetting the value of the state variables
+    //     setInputTagFileList([])
+    //     setDroppedFileList([])
+    //     setFileQueueCount(0)
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error:', error);
+    //   })
 
 
   }

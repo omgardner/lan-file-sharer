@@ -46,7 +46,7 @@ function getFileCategoryFromFileName(filename) {
         // e.g. if mediaType is undefined or not a string
         return "misc"
     }
-    
+
 }
 
 
@@ -75,13 +75,18 @@ async function getFileMetadata(filenames) {
 }
 
 
-// for early testing i only need the one backend API endpoint
-app.get("/api", async (req, res) => {
-    // gets a list of filenames
+// DEBUG no longer necessary
+app.get("/fetch-data-once", async (req, res) => {
+    res.send({ files: await getAllFileMetadata() })
+})
+
+
+async function getAllFileMetadata() {
     const filenames = await fs.readdir(STORAGE_DIR)
     // retrieves metadata for each of those files
-    res.send({ files: await getFileMetadata(filenames) })
-})
+    return await getFileMetadata(filenames)
+}
+
 
 // setup middleware so that upon a POST request to the /upload endpoint the multipart/form-data is saved to the STORAGE_DIR directory.
 const storage = multer.diskStorage({
@@ -114,9 +119,11 @@ app.post("/upload", upload.array("uploaded_files"), async (req, res) => {
 
         uploadedFilenames.push(textFilename)
     }
+    // tells the clients listening for `/file-events` that files were uploaded and provides the metadata required for displaying the new files
+    sendFileEventToAll({type:'uploaded', uploadedFileMetadataArr: await getFileMetadata(uploadedFilenames)})
 
-    // returns the file metadata for each of the newly added files
-    res.send(await getFileMetadata(uploadedFilenames))
+    // tells the client that the data was uploaded successfully
+    res.status(200).end()
 })
 
 
@@ -124,10 +131,59 @@ app.delete("/delete", express.json(), async (req, res) => {
     // deletes a file, then tells the client which specific file was deleted
     const filename = req.body.filename
 
-    fs.unlink(STORAGE_DIR + filename).then(
-        (result) => res.status(200).send({ deletedFilename: filename }),
-        (result) => res.status(404).send({})
-    )
+    fs.unlink(STORAGE_DIR + filename)
+    .then(() => {
+        // tells the clients listening for `/file-events` that the file was deleted
+        sendFileEventToAll({type:'deleted', deletedFilename: filename})
+        // tells the client that the data was deleted successfully
+        res.status(200).end()
+    }).catch(() => {
+        // tells the client that the unlink / delete operation failed.
+        res.status(418).end()
+    })
+
+
+    // tells the client that the data was deleted successfully
+    res.status(200).end()
 })
 
 app.listen(SERVER_PORT, () => console.log(`Listening on ${SERVER_URL}`))
+
+let clients = []
+//let fileEvents = []
+
+async function fileEventsHandler(req, res, next) {
+    const headers = {
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache'
+    }
+
+    // sends out the current state of the file metadata
+    res.writeHead(200, headers)
+    const event = {type:"reloaded", fileMetadataArr: await getAllFileMetadata()}
+    const data = `data: ${JSON.stringify(event)}\n\n`
+    res.write(data)
+
+    // stores the still alive response as a unique client
+    const clientId = Date.now()
+    const newClient = {
+        id: clientId,
+        response: res
+    }
+    clients.push(newClient)
+
+    // removes the client if the connection closes
+    req.on('close', () => {
+        console.log(`${clientId} Connection closed`)
+        clients = clients.filter(client => client.id !== clientId)
+    })
+}
+
+app.get("/file-events", fileEventsHandler)
+
+function sendFileEventToAll(newEventData){
+    console.log(`Sending new event data to ${clients.length} client(s)`)
+    console.log(newEventData)
+    clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
+}
