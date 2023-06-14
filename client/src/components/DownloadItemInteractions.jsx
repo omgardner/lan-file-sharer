@@ -3,20 +3,7 @@ import React from 'react'
 import { SERVER_URL } from '../config';
 
 function DownloadItemInteractions({ fileMetadata }) {
-
-
-    async function copyFileToClipboard() {
-        // TODO: this currently does not work due to the lack of a secure context
-        // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard
-        try {
-            const text = await fetch(fileMetadata.staticURL).then(x => x.text())
-
-            navigator.clipboard.writeText(text)
-        } catch (err) {
-            console.error(err.name, err.message);
-        }
-    }
-
+    
     function downloadToDevice() {
         /**Downloads the file to the browser, then makes the browser click a link with the file blob attached in order to get the actual download functionality to work.
          * Notes:
@@ -61,9 +48,6 @@ function DownloadItemInteractions({ fileMetadata }) {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: "wrap" }} >
-            <div>
-                <Button variant="outlined" size='medium' onClick={copyFileToClipboard}>Copy</Button>
-            </div>
             <div>
                 <Button variant="outlined" size='medium' onClick={downloadToDevice}>Download</Button>
             </div>
