@@ -61,17 +61,25 @@ async function getFileMetadata(filenames) {
     */
     const fileMetadataArr = await Promise.all(
         filenames.map(async (filename) => {
-            const stats = await fs.stat(STORAGE_DIR + filename)
-            return {
-                "filename": filename,
-                "filesize": stats.size,
-                "uploadTimeEpochMs": stats.mtimeMs,
-                "fileCategory": getFileCategoryFromFileName(filename),
-                "staticURL": `${SERVER_URL}/download/${filename}`
+            try {
+                const stats = await fs.stat(STORAGE_DIR + filename)
+                return {
+                    "filename": filename,
+                    "filesize": stats.size,
+                    "uploadTimeEpochMs": stats.mtimeMs,
+                    "fileCategory": getFileCategoryFromFileName(filename),
+                    "staticURL": `${SERVER_URL}/download/${filename}`
+                }
+            } catch (e) {
+                //console.log(e)
+                // this element has a null value caused by an error
+                // most likely caused by the file not existing in the STORAGE_DIR
+                return
             }
-        }))
 
-    return fileMetadataArr
+        }))
+        // filters out any null elements in the array. 
+    return fileMetadataArr.filter(fileMetadata => fileMetadata != null)
 }
 
 
@@ -171,10 +179,11 @@ async function fileEventsHandler(req, res, next) {
         response: res
     }
     clients.push(newClient)
+    console.log(`${clientId} SSE Connection opened`)
 
     // removes the client if the connection closes
     req.on('close', () => {
-        console.log(`${clientId} Connection closed`)
+        console.log(`${clientId} SSE Connection closed`)
         clients = clients.filter(client => client.id !== clientId)
     })
 }
