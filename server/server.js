@@ -19,7 +19,8 @@ app.use('/download', express.static(STORAGE_DIR))
 //      And since this address is dynamically allocated it can't be hardcoded.
 const ip = require('ip')
 const SERVER_PORT = 5000
-const SERVER_ADDRESS = ip.address()
+const SERVER_ADDRESS = ip.address("Ethernet", "ipv4")
+
 const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
 
 
