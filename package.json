@@ -1,0 +1,39 @@
+{
+  "name": "website",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+	  
+  },
+  "scripts": {
+        "client-install"  : "cd client && npm install",
+        "server-install"  : "cd server && npm install",
+        "install-all-deps": "concurrently \"npm run server-install\" \"npm run client-install\"",
+		"dev": "concurrently \"cd client && npm run start\" \"cd server && npm run dev\"",
+		"rebuild-prod": "concurrently \"cd client && npm run rebuild-prod\" \"cd server && npm run start\"",
+		"prod": "concurrently \"cd client && npm run prod\" \"cd server && npm run start\""
+    },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "browser": {
+    "fs": false
+  }
+}
+
+
