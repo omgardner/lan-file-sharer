@@ -11,15 +11,26 @@ const fs = require('fs/promises')
 const multer = require('multer')
 var mime = require('mime-types')
 
-// serves the files in the STORAGE_DIR as static files at the /download endpoint
+// detects if the storage directory doesn't exist and creates 
 const STORAGE_DIR = './storage_directory/'
+fs.access(STORAGE_DIR).catch(err => {
+    return fs.mkdir(STORAGE_DIR)
+        .then(console.log("STORAGE_DIR created successfully"))
+        .catch((err) => {
+            console.error("STORAGE_DIR failed to be created.")
+            throw new Error(err)    
+        })
+})
+
+
+// serves the files in the STORAGE_DIR as static files at the /download endpoint
 app.use('/download', express.static(STORAGE_DIR))
 
 // dynamically calculates the LAN address of this server instance. useful because it relies upon the current computer's IP address. 
 //      And since this address is dynamically allocated it can't be hardcoded.
 const ip = require('ip')
 const SERVER_PORT = 5000
-const SERVER_ADDRESS = ip.address("Ethernet", "ipv4")
+const SERVER_ADDRESS = ip.address()
 
 const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
 
@@ -72,7 +83,6 @@ async function getFileMetadata(filenames) {
                     "staticURL": `${SERVER_URL}/download/${filename}`
                 }
             } catch (e) {
-                //console.log(e)
                 // this element has a null value caused by an error
                 // most likely caused by the file not existing in the STORAGE_DIR
                 return
