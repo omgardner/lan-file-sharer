@@ -155,7 +155,7 @@ app.delete("/delete", express.json(), async (req, res) => {
     res.status(200).end()
 })
 
-app.listen(SERVER_PORT, () => console.log(`Listening on ${SERVER_URL}`))
+app.listen(SERVER_PORT, () => console.log(`The backend Server is listening on ${SERVER_URL}`))
 
 let clients = []
 //let fileEvents = []

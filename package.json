@@ -3,21 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-	  
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3"
   },
   "scripts": {
-        "client-install"  : "cd client && npm install",
-        "server-install"  : "cd server && npm install",
-        "install-all-deps": "concurrently \"npm run server-install\" \"npm run client-install\"",
-		"dev": "concurrently \"cd client && npm run start\" \"cd server && npm run dev\"",
-		"rebuild-prod": "concurrently \"cd client && npm run rebuild-prod\" \"cd server && npm run start\"",
-		"prod": "concurrently \"cd client && npm run prod\" \"cd server && npm run start\""
-    },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "client-install": "cd client && npm install",
+    "server-install": "cd server && npm install",
+    "install-all-deps": "npm i && concurrently \"npm run server-install\" \"npm run client-install\"",
+    "dev": "cross-env NODE_ENV=development && concurrently \"cd server && npm run dev\" \"cd client && npm run start\"",
+    "rebuild-prod": "cross-env NODE_ENV=production && concurrently \"cd server && npm run start\" \"cd client && npm run rebuild-prod\" ",
+    "prod": "cross-env NODE_ENV=production && concurrently \"cd server && npm run start\" \"cd client && npm run prod\" "
   },
   "browserslist": {
     "production": [
@@ -35,5 +30,3 @@
     "fs": false
   }
 }
-
-
