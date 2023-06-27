@@ -17,7 +17,7 @@ var mime = require('mime-types')
 const path = require('path')
 
 // detects if the storage directory doesn't exist. if not it tries to create the directory
-const STORAGE_DIR = path.join(__dirname, "storage_directory")
+const STORAGE_DIR = path.join(__dirname, "storage_directory/")
 fs.access(STORAGE_DIR).catch(err => {
     return fs.mkdir(STORAGE_DIR)
         .then(console.log("STORAGE_DIR created successfully"))
@@ -69,7 +69,7 @@ async function getFileMetadata(filenames) {
     const fileMetadataArr = await Promise.all(
         filenames.map(async (filename) => {
             try {
-                const stats = await fs.stat(STORAGE_DIR + filename)
+                const stats = await fs.stat(path.join(STORAGE_DIR, filename))
                 return {
                     "filename": filename,
                     "filesize": stats.size,
@@ -95,6 +95,9 @@ app.get("/fetch-data-once", async (req, res) => {
 
 async function getAllFileMetadata() {
     const filenames = await fs.readdir(STORAGE_DIR)
+    console.log("Debug")
+    console.log(filenames)
+    console.log(STORAGE_DIR)
     // retrieves metadata for each of those files
     return await getFileMetadata(filenames)
 }
