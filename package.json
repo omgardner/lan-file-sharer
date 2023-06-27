@@ -9,7 +9,7 @@
   "scripts": {
     "frontend-install": "cd frontend && npm install",
     "backend-install": "cd backend && npm install",
-    "install-all-deps": "npm i && concurrently \"npm run backend-install\" \"npm run frontend-install\"",
+    "setup-and-install": "npm install && node setup-env-files && concurrently \"npm run backend-install\" \"npm run frontend-install\"",
     "dev": "cross-env NODE_ENV=development && concurrently \"cd backend && npm run dev\" \"cd frontend && npm run start\"",
     "rebuild-prod": "cross-env NODE_ENV=production && concurrently \"cd backend && npm run start\" \"cd frontend && npm run rebuild-prod\" ",
     "prod": "cross-env NODE_ENV=production && concurrently \"cd backend && npm run start\" \"cd frontend && npm run prod\" "
@@ -25,8 +25,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "browser": {
-    "fs": false
   }
 }
