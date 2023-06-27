@@ -18,7 +18,7 @@ fs.access(STORAGE_DIR).catch(err => {
         .then(console.log("STORAGE_DIR created successfully"))
         .catch((err) => {
             console.error("STORAGE_DIR failed to be created.")
-            throw new Error(err)    
+            throw new Error(err)
         })
 })
 
@@ -28,9 +28,33 @@ app.use('/download', express.static(STORAGE_DIR))
 
 // dynamically calculates the LAN address of this server instance. useful because it relies upon the current computer's IP address. 
 //      And since this address is dynamically allocated it can't be hardcoded.
-const ip = require('ip')
+
+const os = require('os')
+//console.log(os.networkInterfaces())
+
+
+function getPrivateIPAddress() {
+    // ensures that only a private IP address gets retrieved
+    // note: the 'ip' npm package uses os.networkInterfaces() anyway, so it's cleaner to write this custom functionality myself.
+    const interfaces = os.networkInterfaces()
+    for (const [key, valueArr] of Object.entries(interfaces)) {
+        for (const netInterface of valueArr) {
+            if (netInterface.family === "IPv4" && netInterface.address.startsWith("192.168")) {
+                return netInterface.address
+            }
+        }
+    }
+    return null
+}
+
+
 const SERVER_PORT = 5000
-const SERVER_ADDRESS = ip.address()
+const SERVER_ADDRESS = getPrivateIPAddress()
+if (SERVER_ADDRESS === null) {
+    //console.error(os.networkInterfaces())
+    throw new Error("No private IP address was found upon this device. As such the server cannot be hosted and function as intended.")
+}
+
 
 const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
 
@@ -89,7 +113,7 @@ async function getFileMetadata(filenames) {
             }
 
         }))
-        // filters out any null elements in the array. 
+    // filters out any null elements in the array. 
     return fileMetadataArr.filter(fileMetadata => fileMetadata != null)
 }
 
@@ -139,7 +163,7 @@ app.post("/upload", upload.array("uploaded_files"), async (req, res) => {
         uploadedFilenames.push(textFilename)
     }
     // tells the clients listening for `/file-events` that files were uploaded and provides the metadata required for displaying the new files
-    sendFileEventToAll({type:'uploaded', uploadedFileMetadataArr: await getFileMetadata(uploadedFilenames)})
+    sendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: await getFileMetadata(uploadedFilenames) })
 
     // tells the client that the data was uploaded successfully
     res.status(200).end()
@@ -151,15 +175,15 @@ app.delete("/delete", express.json(), async (req, res) => {
     const filename = req.body.filename
 
     fs.unlink(STORAGE_DIR + filename)
-    .then(() => {
-        // tells the clients listening for `/file-events` that the file was deleted
-        sendFileEventToAll({type:'deleted', deletedFilename: filename})
-        // tells the client that the data was deleted successfully
-        res.status(200).end()
-    }).catch(() => {
-        // tells the client that the unlink / delete operation failed.
-        res.status(418).end()
-    })
+        .then(() => {
+            // tells the clients listening for `/file-events` that the file was deleted
+            sendFileEventToAll({ type: 'deleted', deletedFilename: filename })
+            // tells the client that the data was deleted successfully
+            res.status(200).end()
+        }).catch(() => {
+            // tells the client that the unlink / delete operation failed.
+            res.status(418).end()
+        })
 
     // tells the client that the data was deleted successfully
     res.status(200).end()
@@ -179,7 +203,7 @@ async function fileEventsHandler(req, res, next) {
 
     // sends out the current state of the file metadata
     res.writeHead(200, headers)
-    const event = {type:"reloaded", fileMetadataArr: await getAllFileMetadata()}
+    const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata() }
     const data = `data: ${JSON.stringify(event)}\n\n`
     res.write(data)
 
@@ -201,7 +225,7 @@ async function fileEventsHandler(req, res, next) {
 
 app.get("/file-events", fileEventsHandler)
 
-function sendFileEventToAll(newEventData){
+function sendFileEventToAll(newEventData) {
     console.log(`Sending new event data to ${clients.length} client(s)`)
     console.log(newEventData)
     clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
