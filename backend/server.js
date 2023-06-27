@@ -1,3 +1,7 @@
+// loads in environment variables from the .env file to be accessed using `process.env.VAR_NAME`, such as the server's current private IP address
+require('dotenv').config()
+const BACKEND_URL = `http://${process.env.PRIVATE_IP_ADDR}:${process.env.BACKEND_PORT}`
+
 // expressjs as a web server
 const express = require('express')
 const app = express()
@@ -7,12 +11,13 @@ const cors = require('cors')
 app.use(cors())
 
 // handling files and file metadata
-const fs = require('fs/promises')
+const fs = require('fs/promises') 
 const multer = require('multer')
 var mime = require('mime-types')
+const path = require('path')
 
-// detects if the storage directory doesn't exist and creates 
-const STORAGE_DIR = './storage_directory/'
+// detects if the storage directory doesn't exist. if not it tries to create the directory
+const STORAGE_DIR = path.join(__dirname, "storage_directory")
 fs.access(STORAGE_DIR).catch(err => {
     return fs.mkdir(STORAGE_DIR)
         .then(console.log("STORAGE_DIR created successfully"))
@@ -25,39 +30,6 @@ fs.access(STORAGE_DIR).catch(err => {
 
 // serves the files in the STORAGE_DIR as static files at the /download endpoint
 app.use('/download', express.static(STORAGE_DIR))
-
-// dynamically calculates the LAN address of this server instance. useful because it relies upon the current computer's IP address. 
-//      And since this address is dynamically allocated it can't be hardcoded.
-
-const os = require('os')
-//console.log(os.networkInterfaces())
-
-
-function getPrivateIPAddress() {
-    // ensures that only a private IP address gets retrieved
-    // note: the 'ip' npm package uses os.networkInterfaces() anyway, so it's cleaner to write this custom functionality myself.
-    const interfaces = os.networkInterfaces()
-    for (const [key, valueArr] of Object.entries(interfaces)) {
-        for (const netInterface of valueArr) {
-            if (netInterface.family === "IPv4" && netInterface.address.startsWith("192.168")) {
-                return netInterface.address
-            }
-        }
-    }
-    return null
-}
-
-
-const SERVER_PORT = 5000
-const SERVER_ADDRESS = getPrivateIPAddress()
-if (SERVER_ADDRESS === null) {
-    //console.error(os.networkInterfaces())
-    throw new Error("No private IP address was found upon this device. As such the server cannot be hosted and function as intended.")
-}
-
-
-const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
-
 
 function getFileCategoryFromFileName(filename) {
     // uses the mediatype to create a categorisation for each file, used by the frontend to display relevant file icons next to each file
@@ -85,7 +57,6 @@ function getFileCategoryFromFileName(filename) {
 
 }
 
-
 async function getFileMetadata(filenames) {
     /*  Uses an array of filenames to get stats for each file, and returns an array of objects containing each file's metadata
     
@@ -104,7 +75,7 @@ async function getFileMetadata(filenames) {
                     "filesize": stats.size,
                     "uploadTimeEpochMs": stats.mtimeMs,
                     "fileCategory": getFileCategoryFromFileName(filename),
-                    "staticURL": `${SERVER_URL}/download/${filename}`
+                    "staticURL": `${BACKEND_URL}/download/${filename}`
                 }
             } catch (e) {
                 // this element has a null value caused by an error
@@ -116,8 +87,6 @@ async function getFileMetadata(filenames) {
     // filters out any null elements in the array. 
     return fileMetadataArr.filter(fileMetadata => fileMetadata != null)
 }
-
-
 // DEBUG no longer necessary
 app.get("/fetch-data-once", async (req, res) => {
     res.send({ files: await getAllFileMetadata() })
@@ -189,10 +158,9 @@ app.delete("/delete", express.json(), async (req, res) => {
     res.status(200).end()
 })
 
-app.listen(SERVER_PORT, () => console.log(`The backend Server is listening on ${SERVER_URL}`))
+
 
 let clients = []
-//let fileEvents = []
 
 async function fileEventsHandler(req, res, next) {
     const headers = {
@@ -230,3 +198,6 @@ function sendFileEventToAll(newEventData) {
     console.log(newEventData)
     clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
 }
+
+
+app.listen(process.env.BACKEND_PORT, process.env.PRIVATE_IP_ADDR, () => console.log(`The backend server is listening on ${BACKEND_URL}`))

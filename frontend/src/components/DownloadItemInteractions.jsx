@@ -1,6 +1,6 @@
 import { Box, Button } from '@mui/material'
 import React from 'react'
-import { SERVER_URL } from '../config';
+import { BACKEND_URL } from '../config';
 
 function DownloadItemInteractions({ fileMetadata }) {
     
@@ -33,7 +33,7 @@ function DownloadItemInteractions({ fileMetadata }) {
     }
 
     function deleteFile() {
-        fetch(SERVER_URL + "/delete ",
+        fetch(BACKEND_URL + "/delete ",
             {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },

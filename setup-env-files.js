@@ -28,17 +28,21 @@ if (privateIPAddress === null){
     throw new Error("A private IP address could not be found across your network interfaces. This suggests that you are not connected to a network at all, so double check your WiFi / Ethernet cable and try again.")
 }
 
+const FRONTEND_PORT = 3000
+const BACKEND_PORT = 5000
+
+// create-react-app uses dotenv on the backend, but will ignore any env var that doesn't start with `REACT_APP_`
 frontendEnvVars = {
-    PRIVATE_IP_ADDR: privateIPAddress,
-    BACKEND_PORT: 5000,
-    FRONTEND_PORT: 3000,
-    BROWSER: "none" // stops react-scripts from opening a new window when the frontend server starts
+    HOST: privateIPAddress,
+    PORT: FRONTEND_PORT,
+    REACT_APP_BACKEND_URL: `http://${privateIPAddress}:${BACKEND_PORT}`,
+    //BROWSER: "none" // uncomment this to stop react-scripts from opening a new window when the frontend server starts
 }
 
 backendEnvVars = {
     PRIVATE_IP_ADDR: privateIPAddress,
-    BACKEND_PORT: 5000,
-    FRONTEND_PORT: 3000,
+    FRONTEND_PORT: FRONTEND_PORT,
+    BACKEND_PORT: BACKEND_PORT,
 }
 
 // writes the data to .env files located at the root directories of the frontend and backend

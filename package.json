@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "concurrently": "^8.2.0",
-    "cross-env": "^7.0.3"
+    "concurrently": "^8.2.0"
   },
   "scripts": {
     "frontend-install": "cd frontend && npm install",
     "backend-install": "cd backend && npm install",
-    "setup-and-install": "npm install && node setup-env-files && concurrently \"npm run backend-install\" \"npm run frontend-install\"",
-    "dev": "cross-env NODE_ENV=development && concurrently \"cd backend && npm run dev\" \"cd frontend && npm run start\"",
-    "rebuild-prod": "cross-env NODE_ENV=production && concurrently \"cd backend && npm run start\" \"cd frontend && npm run rebuild-prod\" ",
-    "prod": "cross-env NODE_ENV=production && concurrently \"cd backend && npm run start\" \"cd frontend && npm run prod\" "
+    "setup": "npm install && node setup-env-files",
+    "setup-and-install": "npm run setup && concurrently \"npm run backend-install\" \"npm run frontend-install\"",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "rebuild-prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run rebuild-prod\" ",
+    "prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run prod\" "
   },
   "browserslist": {
     "production": [
