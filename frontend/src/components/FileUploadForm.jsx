@@ -1,6 +1,6 @@
 import { Typography, Grid, Button, Card } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { SERVER_URL } from '../config';
+import { BACKEND_URL } from '../config';
 
 
 function FileUploadForm() {
@@ -49,7 +49,7 @@ function FileUploadForm() {
     }
 
     // AJAX HTTP POST request
-    fetch(SERVER_URL + "/upload",
+    fetch(BACKEND_URL + "/upload",
       {
         method: "POST",
         body: formData

@@ -6,7 +6,7 @@ import DownloadItem from './DownloadItem';
 import DownloadSortAndFilter from './DownloadSortAndFilter';
 import { FileListContext, FileListDispatchContext } from './FileContext';
 
-import { SERVER_URL } from '../config';
+import { BACKEND_URL } from '../config';
 
 const DownloadSection = () => {
   /**Contains everything related to the downloaded file list
@@ -23,7 +23,7 @@ const DownloadSection = () => {
   // listens for Server-Side Events, and dispatches any messages so that the Downloaded File list gets dynamically updated.
   useEffect( () => {
     if (!listening) {
-      const events = new EventSource(SERVER_URL + "/file-events")
+      const events = new EventSource(BACKEND_URL + "/file-events")
 
       events.onmessage = (event) => {
         const newEventData = JSON.parse(event.data);

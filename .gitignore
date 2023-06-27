@@ -25,3 +25,6 @@ yarn-error.log*
 
 # storage dir
 **/storage_directory/*
+
+# .env files
+**/.env
