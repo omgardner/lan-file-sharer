@@ -12,7 +12,7 @@ This lets you easily share text, photos and other files between any device in yo
 - Run `npm run dev` to get start the dev servers.
 - Run `npm run rebuild-prod` to get start the **PRODUCTION** servers.
 
-The backend (/server folder) and frontend (/client folder) are hosted on your private IP address. This is the IP address assigned to your computer by your router.
+The backend (/backend folder) and frontend (/frontend folder) are hosted on your private IP address. This is the IP address assigned to your computer by your router.
 
 For example if your Private IP Address was `192.168.0.15`:
 - access the app via the following url: `http://192.168.0.15:3000`

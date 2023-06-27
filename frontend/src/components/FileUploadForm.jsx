@@ -4,7 +4,7 @@ import { SERVER_URL } from '../config';
 
 
 function FileUploadForm() {
-  /** Component contains all UI elements for uploading files and text to the server
+  /** Component contains all UI elements for uploading files and text to the backend
    *  
    * It is heavily modified from the starting code, sourced from: https://codefrontend.com/file-upload-reactjs/
    */

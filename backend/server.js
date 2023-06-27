@@ -2,7 +2,7 @@
 const express = require('express')
 const app = express()
 
-// allowing CORS, for communicating with the client that is on a different domain
+// allowing CORS, for communicating with the frontend that is on a different domain
 const cors = require('cors')
 app.use(cors())
 
@@ -60,7 +60,7 @@ const SERVER_URL = `http://${SERVER_ADDRESS}:${SERVER_PORT}`
 
 
 function getFileCategoryFromFileName(filename) {
-    // uses the mediatype to create a categorisation for each file, used by the client to display relevant file icons next to each file
+    // uses the mediatype to create a categorisation for each file, used by the frontend to display relevant file icons next to each file
     const mediaType = mime.lookup(filename)
 
     try {
