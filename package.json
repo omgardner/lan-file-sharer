@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "qrcode": "^1.5.3"
   },
   "scripts": {
     "frontend-install": "cd frontend && npm install",
