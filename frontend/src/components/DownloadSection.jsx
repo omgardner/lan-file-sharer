@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 
 import DownloadItem from './DownloadItem';
 import DownloadSortAndFilter from './DownloadSortAndFilter';
-import { FileListContext, FileListDispatchContext } from './FileContext';
+import { FileListContext, FileListDispatchContext } from '../contexts/FileListContext';
 
 import { BACKEND_URL } from '../config';
 
@@ -20,8 +20,9 @@ const DownloadSection = () => {
 
   const [ listening, setListening ] = useState(false)
 
-  // listens for Server-Side Events, and dispatches any messages so that the Downloaded File list gets dynamically updated.
+  // listens for Server-Side Events, and dispatches any messages to a reducer. This is so that the Downloaded File list gets dynamically updated.
   useEffect( () => {
+    // ensures that a new EventSource is created only once
     if (!listening) {
       const events = new EventSource(BACKEND_URL + "/file-events")
 
