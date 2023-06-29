@@ -4,7 +4,7 @@ import HeaderSection from './components/HeaderSection';
 import DownloadSection from './components/DownloadSection';
 import UploadSection from './components/UploadSection';
 import { FileListProvider } from './contexts/FileListContext';
-import FileDragAndDropDialog from './components/DialogStuff/FileDragAndDropDialog';
+import FileDragAndDropDialog from './components/FileDragAndDropDialog';
 import { useState } from 'react';
 import { DragAndDropFileListProvider } from './contexts/DragAndDropListContext';
 

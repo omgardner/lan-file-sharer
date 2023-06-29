@@ -160,7 +160,7 @@ function FileUploadForm() {
         <Grid item xs={12} md={6} padding={1} >
           <Card sx={{ height: "100%", width: "100%", backgroundColor: "#FFFFFF" }}>
             <label htmlFor="uploaded_files" style={{ width: '100%', height: '100%', display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <Typography variant="subtitle1" sx={{ textAlign: "center", opacity: 0.6 }}>Upload Some Files</Typography>
+              <Typography variant="subtitle1" sx={{ textAlign: "center", opacity: 0.6 }}>Browse for Files, or Drag & Drop</Typography>
             </label>
             <input
               id="uploaded_files"
@@ -177,7 +177,7 @@ function FileUploadForm() {
       <Grid item xs={6} md={3} padding={1} height="100%">
         <Card sx={{ height: "100%", width: "100%", backgroundColor: "#eeeeee", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
           {inputText.length > 0 ? (<Typography>Text Queued</Typography>) : (<Typography style={{ opacity: 0 }}>No Text Queued</Typography>)}
-          <Button variant="contained" onClick={handleSubmit} sx={{ margin: 1 }} disabled={inputText.length === 0 && fileQueueCount === 0}>Upload Data</Button>
+          <Button variant="contained" onClick={handleSubmit} sx={{ margin: 1 }} disabled={inputText.length === 0 && fileQueueCount === 0}>Upload</Button>
           {fileQueueCount > 0 ? (<Typography>{fileQueueCount} File(s) Queued</Typography>) : (<Typography style={{ opacity: 0 }}>No Files Queued</Typography>)}
         </Card>
       </Grid>
