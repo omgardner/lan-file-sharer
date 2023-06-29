@@ -1,6 +1,7 @@
 import { Typography, Grid, Button, Card } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { BACKEND_URL } from '../config';
+import { DragAndDropFileListContext, SetDragAndDropFileListContext } from '../contexts/DragAndDropListContext';
 
 
 function FileUploadForm() {
@@ -14,15 +15,16 @@ function FileUploadForm() {
   //  (a) the .length property and 
   //  (b) iteration using a for...of loop
   const [inputTagFileList, setInputTagFileList] = useState([])
-  const [droppedFileList, setDroppedFileList] = useState([])
+  const dragAndDropFileList = useContext(DragAndDropFileListContext) // a MUI dialogue elsewhere sets this value
+  const setDragAndDropFileList = useContext(SetDragAndDropFileListContext)
   const [fileQueueCount, setFileQueueCount] = useState(0)
   const [inputText, setInputText] = useState("")
 
   // change the file count anytime either of the file lists get changed
   useEffect(() => {
-    setFileQueueCount(inputTagFileList.length + droppedFileList.length)
+    setFileQueueCount(inputTagFileList.length + dragAndDropFileList.length)
 
-  }, [handleInputFilesChange, handleDroppedFilesChange])
+  }, [inputTagFileList, dragAndDropFileList])
 
   function handleSubmit(event) {
     // stops the page from being redirected
@@ -39,7 +41,7 @@ function FileUploadForm() {
     }
 
     // drag & drop files, when ... dragging a file from the desktop or a GUI file explorer and dropping the files into the file upload card 
-    for (const file of droppedFileList) {
+    for (const file of dragAndDropFileList) {
       formData.append("uploaded_files", file);
     }
 
@@ -67,7 +69,7 @@ function FileUploadForm() {
 
         // resetting the value of the state variables
         setInputTagFileList([])
-        setDroppedFileList([])
+        setDragAndDropFileList([])
         setFileQueueCount(0)}
       )
     // ).then((res) => {
@@ -84,7 +86,7 @@ function FileUploadForm() {
 
     //     // resetting the value of the state variables
     //     setInputTagFileList([])
-    //     setDroppedFileList([])
+    //     setDragAndDropFileList([])
     //     setFileQueueCount(0)
     //   })
     //   .catch((error) => {
@@ -102,19 +104,6 @@ function FileUploadForm() {
     // Nullish coalescing operator, if the left hand side of ?? is null or undefined then return the right hand side
     setInputText(newInputText ?? "")
   }
-
-  function handleDroppedFilesChange(event) {
-    // stops the dragged file from redirecting the page once dropped
-    event.preventDefault()
-
-    setDroppedFileList(event.dataTransfer.files ?? [])
-  }
-
-  function onDragOver(event) {
-    // stops the dragged file from redirecting the page once dropped
-    event.preventDefault()
-  }
-
   function handleInputFilesChange(event) {
     // this prevents bugs when event.target.files is undefined
     setInputTagFileList(event.target.files ?? [])
@@ -146,8 +135,6 @@ function FileUploadForm() {
   return (
 
     <Grid container columns={12}
-      onDrop={handleDroppedFilesChange}
-      onDragOver={onDragOver}
       height="150px"
     >
       <Grid container item xs={6} md={9} >

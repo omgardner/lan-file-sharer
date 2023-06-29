@@ -1,6 +1,6 @@
 import { createContext, useReducer } from "react";
 
-/** FileListProvidercombines a reducer and a context together, in order to let any component dispatch an update to the displayed download file list. */
+/** FileListProvider combines a reducer and a context together, in order to let any component dispatch an update to the displayed download file list. */
 
 
 export const FileListContext = createContext(null)
