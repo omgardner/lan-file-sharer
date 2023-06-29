@@ -7,30 +7,33 @@ import { SetDragAndDropFileListContext } from '../contexts/DragAndDropListContex
 function FileDragAndDropDialog({ closeDialog, open }) {
     const setDragAndDropFileList = useContext(SetDragAndDropFileListContext)
 
-    function handleClick(event) {
-        console.log("FileDragAndDropDialog closed: clicked")
-        // calls the function that was defined in the parent's state. this stops the Dialog from displaying 
-        closeDialog()
-    }
-
     function handleFileDrop(event) {
-        event.preventDefault()
-        console.log("FileDragAndDropDialog closed: dropped file(s)")
-        console.log(event)
         // this is where the dragAndDropFileList context will be changed, using the data from the files that were just dragged and dropped 
-        // the logic here is that the existing array / FileList is replaced
+        event.preventDefault()
+        
+        // The existing value is replaced
         setDragAndDropFileList(event.dataTransfer.files ?? [])
         closeDialog()
     }
 
     return (
-        <Dialog open={open} onClick={handleClick}
-            onDragOver={e => e.preventDefault()}
+        <Dialog open={open} 
+            onDragOver={(e => e.preventDefault())}
             onDrop={handleFileDrop}
+            onMouseOver={() => {
+                /** This event occurs if the user is no longer dragging a file, but the dialog is still open. 
+                 * This edge-case implies that the dialog is still open when it shouldn't be, so this callback function just closes the dialog.
+                 * (e.g. if the user cancelled the drag and drop by pressing the escape key or by right-clicking the mouse)
+                 * 
+                 * Note that for the dialog to be open the user must have already been dragging a file.
+                 */
+                closeDialog()
+            }}
+            onClick={closeDialog}
             fullWidth={true}
             maxWidth={'lg'}
         >
-            <Card sx={{padding:4, border:2, margin: 2, borderStyle: "dashed", opacity: 0.5}}>
+            <Card sx={{ padding: 4, border: 2, margin: 2, borderStyle: "dashed", opacity: 0.5 }}>
                 <Typography variant='h4' textAlign={'center'}>Drop your files to upload them</Typography>
             </Card>
 
