@@ -1,6 +1,10 @@
 import { createContext,  useState } from "react";
 
-/** FileListProvider combines a reducer and a context together, in order to let any component dispatch an update to the displayed download file list. */
+/** 
+ * DragAndDropFileListProvider provides context values for when a file is dragged from a GUI file browser and dropped into the web browser 
+ * 
+ * The contexts are used by the FileDragAndDropDialog and FileUploadForm components.
+ * */
 
 
 export const DragAndDropFileListContext = createContext(null)
@@ -16,24 +20,4 @@ export function DragAndDropFileListProvider({children}) {
           </SetDragAndDropFileListContext.Provider>
         </DragAndDropFileListContext.Provider>
       );
-
-
 }
-
-// export function fileListReducer(fileMetadataArr, action) {
-//     console.log(action)
-//     switch (action.type) {
-//         case 'uploaded': {
-//             return [...fileMetadataArr, ...action.uploadedFileMetadataArr]
-//         }
-//         case 'deleted': {
-//             return fileMetadataArr.filter((fileMetadata) => fileMetadata.filename !== action.deletedFilename)
-//         }
-//         case 'reloaded': {
-//             return action.fileMetadataArr
-//         }
-//         default: {
-//             throw Error('Unknown action in the fileMetadataArr reducer.');
-//         }
-//     }
-// }
