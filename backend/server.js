@@ -1,6 +1,6 @@
 // loads in environment variables from the .env file to be accessed using `process.env.VAR_NAME`, such as the server's current private IP address
 require('dotenv').config()
-const BACKEND_URL = `http://${process.env.PRIVATE_IP_ADDR}:${process.env.BACKEND_PORT}`
+const BACKEND_URL = process.env.BACKEND_URL
 
 // expressjs as a web server
 const express = require('express')
