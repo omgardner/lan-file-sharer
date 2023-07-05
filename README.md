@@ -2,9 +2,14 @@
 ## About
 This lets you easily share text, photos and other files between any device in your Local Area Network, such as your phone, laptop or desktop computer.
 
+## Why use this?
+- You don't want to use a cloud service to share your files between devices
+- you want a pretty and responsive UI to access a file server
+
 ## Technical Details
 Frontend:
 - ReactJS + Material UI
+
 Backend:
 - NodeJS + ExpressJS
 > the backend is acting as both the Model and Controller in the MVC pattern, since the files are statically hosted using ExpressJS
@@ -32,7 +37,7 @@ Backend:
 - [ ] CI/CD for testing and deployment
 - [ ] Copy file's contents to clipboard
   - [ ] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
-  - [ ] handling cross-platform inconsistency for support of the ClipboardAPI
+  - [ ] handling cross-platform inconsistency for support of the ClipboardAPI, especially for image files
 - [ ] (in progress) build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
 - [ ] background uploads and downloads for large files, possibly using the Worker API
 
