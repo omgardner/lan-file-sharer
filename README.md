@@ -1,6 +1,7 @@
 # LAN File Sharer
 ![ui-ready-to-upload](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-ready-to-upload.png?raw=true)
 
+[![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)](https://www.figma.com/file/AQv5Z7kc4GItZl9Ps4tjAK/Home-Data-Sharing?type=design&node-id=0%3A1&mode=design&t=B98xeqpRSfb4zK0W-1)
 ## About
 This lets you easily share text, photos and other files between any device in your Local Area Network, such as your phone, laptop or desktop computer.
 
