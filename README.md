@@ -9,13 +9,12 @@ This lets you easily share text, photos and other files between any device in yo
 - you want a pretty and responsive UI to access a file server
 - Quickly paste some text and upload it as a .txt file
 
-## Technical Details
-Frontend:
-- ReactJS + Material UI
+## How to run
+- [Install NodeJS](https://nodejs.org/en)
+- navigate to this repo's root folder
+-  run `npm run setup-and-install` to install all the required node packages
+- Run `npm run dev` to start the dev servers.
 
-Backend:
-- NodeJS + ExpressJS
-> the backend is acting as both the Model and Controller in the MVC pattern, since the files are statically hosted using ExpressJS
 ## Feature List
 ### Completed
 - [x] Responsive Design using Material UI React Components, supporting mobile and desktop devices
@@ -44,13 +43,15 @@ Backend:
 - [ ] (in progress) build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
 - [ ] background uploads and downloads for large files, possibly using the Worker API
 
-## How to run
-- [Install NodeJS](https://nodejs.org/en)
-- navigate to this repo's root folder
--  run `npm run setup-and-install` to install all the required node packages
-- Run `npm run dev` to start the dev servers.
+## Technical Details
+Frontend:
+- ReactJS + Material UI
 
-### Production Build
+Backend:
+- NodeJS + ExpressJS
+> the backend is acting as both the Model and Controller in the MVC pattern, since the files are statically hosted using ExpressJS
+
+## Production Build
 CI/CD isn't setup yet, but you can create a production build by running: `npm run rebuild-prod`. 
 
 The `/backend` and `/frontend` servers are hosted on your *private IP address*. This is the IP address assigned to your computer by your router.
