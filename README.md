@@ -65,5 +65,7 @@ For example if your Private IP Address was `192.168.0.15`:
 ## More Images
 ![ui-mobile-files-uploaded](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-mobile-files-uploaded.png?raw=true)
 > Responsive design, showing the text and files that were just uploaded
+
+
 ![ui-drag-and-drop](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-drag-and-drop.png?raw=true)
 > Drag & Drop UI modal
