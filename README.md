@@ -1,4 +1,6 @@
 # LAN File Sharer
+![ui-ready-to-upload](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-ready-to-upload.png?raw=true)
+
 ## About
 This lets you easily share text, photos and other files between any device in your Local Area Network, such as your phone, laptop or desktop computer.
 
