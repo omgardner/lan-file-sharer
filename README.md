@@ -9,10 +9,9 @@ This lets you easily share text, photos and other files between any device in yo
 -  run `npm run setup-and-install` to install all the required node packages
 
 ### running the servers
-- Run `npm run dev` to get start the dev servers.
-- Run `npm run rebuild-prod` to start the **PRODUCTION** servers.
-    - if you've already built prod with the latest changes, you can just run `npm run prod` instead.
-> the main benefit of the prod server is that the react bundle size is much smaller.
+- Run `npm run dev` to start the dev servers.
+
+CI/CD isn't setup yet, but you can create a production build by running: `npm run rebuild-prod`
 
 The `/backend` and `/frontend` servers are hosted on your *private IP address*. This is the IP address assigned to your computer by your router.
 
