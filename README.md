@@ -27,17 +27,17 @@ Backend:
 - [x] Downloading files and Previewing their contents in a new tab
 
 ### Planned / In Progress
-- [~] Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
-- [] use the [dropzone](https://www.dropzone.dev/) package to handle
-  - [] upload in progress UI
-  - [] cancel upload UI
-  - [] adding support to upload folders, and displaying the folders as React Components
-- [] CI/CD for testing and deployment
-- [] Copy file's contents to clipboard
-  - [] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
-  - [] handling cross-platform inconsistency for support of the ClipboardAPI
-- [~] build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
-- [] background uploads and downloads for large files, possibly using the Worker API
+- [ ] (in progress) Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
+- [ ] use the [dropzone](https://www.dropzone.dev/) package to handle
+  - [ ] upload in progress UI
+  - [ ] cancel upload UI
+  - [ ] adding support to upload folders, and displaying the folders as React Components
+- [ ] CI/CD for testing and deployment
+- [ ] Copy file's contents to clipboard
+  - [ ] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
+  - [ ] handling cross-platform inconsistency for support of the ClipboardAPI
+- [ ] (in progress) build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
+- [ ] background uploads and downloads for large files, possibly using the Worker API
 
 ## How to run
 - [Install NodeJS](https://nodejs.org/en)
