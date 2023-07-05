@@ -5,12 +5,9 @@ This lets you easily share text, photos and other files between any device in yo
 ## Technical Details
 Frontend:
 - ReactJS + Material UI
-> acting as the View in the MVC pattern
-
 Backend:
 - NodeJS + ExpressJS
-> Acting as the Controller and Model in the MVC pattern, since the storage_directory of the files is on the backend server itself
-
+> the backend is acting as both the Model and Controller in the MVC pattern, since the files are statically hosted using ExpressJS
 ## Feature List
 ### Completed
 - [x] Responsive Design using Material UI React Components, supporting mobile and desktop devices
