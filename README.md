@@ -7,6 +7,7 @@ This lets you easily share text, photos and other files between any device in yo
 ## Why use this?
 - You don't want to use a cloud service to share your files between devices
 - you want a pretty and responsive UI to access a file server
+- Quickly paste some text and upload it as a .txt file
 
 ## Technical Details
 Frontend:
@@ -59,3 +60,9 @@ For example if your Private IP Address was `192.168.0.15`:
 - the backend is hosted on a different port: `http://192.168.0.15:5000`
 
 > The command line will output where it's being hosted, and should open a new tab in your browser once the frontend has launched
+
+## More Images
+![ui-mobile-files-uploaded](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-mobile-files-uploaded.png?raw=true)
+> Responsive design, showing the text and files that were just uploaded
+![ui-drag-and-drop](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-drag-and-drop.png?raw=true)
+> Drag & Drop UI modal
