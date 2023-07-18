@@ -32,6 +32,7 @@ This lets you easily share text, photos and other files between any device in yo
 - [x] Downloading files and Previewing their contents in a new tab
 
 ### Planned / In Progress
+- [ ] switching from react-scripts to vite
 - [ ] (in progress) Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
 - [ ] use the [dropzone](https://www.dropzone.dev/) package to handle
   - [ ] upload in progress UI
@@ -53,7 +54,7 @@ Backend:
 > the backend is acting as both the Model and Controller in the MVC pattern, since the files are statically hosted using ExpressJS
 
 ## Production Build
-CI/CD isn't setup yet, but you can create a production build by running: `npm run rebuild-prod`. 
+The prod build is a work in progress, but when running it it reduces the size of the react bundle sent to the browser. It can be run using: `npm run rebuild-prod`. 
 
 The `/backend` and `/frontend` servers are hosted on your *private IP address*. This is the IP address assigned to your computer by your router.
 
