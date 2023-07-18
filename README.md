@@ -8,7 +8,7 @@ This lets you easily share text, photos and other files between any device in yo
 ## Why use this?
 - You don't want to use a cloud service to share your files between devices
 - you want a pretty and responsive UI to access a file server
-- Quickly paste some text and upload it as a .txt file
+- scan a QR code to quickly connect to to the webpage
 
 ## How to run
 - [Install NodeJS](https://nodejs.org/en)
@@ -38,10 +38,10 @@ This lets you easily share text, photos and other files between any device in yo
   - [ ] upload in progress UI
   - [ ] cancel upload UI
   - [ ] adding support to upload folders, and displaying the folders as React Components
-- [ ] CI/CD for testing and deployment
+- [ ] basic testing setup
 - [ ] Copy file's contents to clipboard
   - [ ] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
-  - [ ] handling cross-platform inconsistency for support of the ClipboardAPI, especially for image files
+  - [ ] handling cross-browser inconsistency for support of the ClipboardAPI, especially for image files
 - [ ] (in progress) build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
 - [ ] background uploads and downloads for large files, possibly using the Worker API
 
@@ -63,6 +63,12 @@ For example if your Private IP Address was `192.168.0.15`:
 - the backend is hosted on a different port: `http://192.168.0.15:5000`
 
 > The command line will output where it's being hosted, and should open a new tab in your browser once the frontend has launched
+
+## Why I made this
+- to learn ReactJS
+- to learn MVC pattern
+- i've always been interested in UIs but found it daunting in the past
+- I'd like to transition towards a career path that more involves web development.
 
 ## More Images
 ![ui-mobile-files-uploaded](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-mobile-files-uploaded.png?raw=true)
