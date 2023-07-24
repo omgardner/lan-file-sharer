@@ -1,4 +1,4 @@
-const { STORAGE_DIR, sseSendFileEventToAll} = require('./storage.helpers')
+const { STORAGE_DIR, sseClient} = require('./storage.helpers')
 const fs = require('fs/promises')
 const path = require('path')
 
@@ -19,7 +19,7 @@ uploadData = async (req, res) => {
         uploadedFilenames.push(textFilename)
     }
     // tells the clients listening for `/file-events` that files were uploaded and provides the metadata required for displaying the new files
-    sseSendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: await getFileMetadata(uploadedFilenames) })
+    sseClient.sendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: await getFileMetadata(uploadedFilenames) })
 
     // tells the client that the data was uploaded successfully
     res.status(200).end()
@@ -30,7 +30,7 @@ deleteFile = async (req, res) => {
     // deletes a file, then tells the client which specific file was deleted
     const filename = req.body.filename
     fs.unlink(path.join(STORAGE_DIR, filename))
-        .then(sseSendFileEventToAll({ type: 'deleted', deletedFilename: filename }))
+        .then(sseClient.sendFileEventToAll({ type: 'deleted', deletedFilename: filename }))
         .then(() => res.status(200).end())
         .catch(() => {
             // tells the client that the unlink / delete operation failed.

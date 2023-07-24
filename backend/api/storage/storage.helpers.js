@@ -79,47 +79,54 @@ getAllFileMetadata = async () => {
 }
 
 
+// singleton pattern. i think the functions utilise closures to access the 'clients' and 'headers' variables.
+// https://stackoverflow.com/questions/1479319/simplest-cleanest-way-to-implement-a-singleton-in-javascript
+// this is the least-hacky method to implement the singleton pattern I could find
 
-
-// there might be issues but just testing that this approach actually works on a basic level
-var clients = []
-sseAddNewClient = async (req, res, next) => {
+var sseClient = (function () {
+    // declare private information:
+    var clients = []
     const headers = {
         'Content-Type': 'text/event-stream',
         'Connection': 'keep-alive',
         'Cache-Control': 'no-cache'
     }
-    // sends out the current state of the file metadata
-    const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
-    const data = `data: ${JSON.stringify(event)}\n\n`
 
-    // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
-    res.writeHead(200, headers)
-    res.write(data)
-
-    // stores the still alive response as a unique client
-    const clientId = Date.now()
-    const newClient = {
-        id: clientId,
-        response: res
-    }
+    // return public information (usually functions):
+    return {
+        addNewClient: async function(req, res, next) {
     
-    clients.push(newClient)
-    console.log(`${clientId} SSE Connection opened`)
-
-    // removes the client if the connection closes
-    req.on('close', () => {
-        console.log(`${clientId} SSE Connection closed`)
-        clients = clients.filter(client => client.id !== clientId)
-    })
-}
-
-sseSendFileEventToAll = (newEventData) =>{
-    console.log(`Sending new event data to ${clients.length} client(s)`)
-    console.log(newEventData)
-    clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
-}
-
+            // sends out the current state of the file metadata
+            const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
+            const data = `data: ${JSON.stringify(event)}\n\n`
+        
+            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
+            res.writeHead(200, headers)
+            res.write(data)
+        
+            // stores the still alive response as a unique client
+            const clientId = Date.now()
+            const newClient = {
+                id: clientId,
+                response: res
+            }
+            
+            clients.push(newClient)
+            console.log(`${clientId} SSE Connection opened`)
+        
+            // removes the client if the connection closes
+            req.on('close', () => {
+                console.log(`${clientId} SSE Connection closed`)
+                clients = clients.filter(client => client.id !== clientId)
+            })
+        },
+        sendFileEventToAll: function(newEventData) {
+            console.log(`Sending new event data to ${clients.length} client(s)`)
+            console.log(newEventData)
+            clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
+        }
+    }
+})()
 
 module.exports = {
     STORAGE_DIR: STORAGE_DIR,
@@ -127,6 +134,5 @@ module.exports = {
     getEpochTime: getEpochTime,
     getAllFileMetadata: getAllFileMetadata,
     getFileMetadata: getFileMetadata,
-    sseAddNewClient: sseAddNewClient,
-    sseSendFileEventToAll:sseSendFileEventToAll
+    sseClient:sseClient
 }

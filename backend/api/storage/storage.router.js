@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require("express")
 const router = express.Router()
 const fileController = require('./storage.controller')
-const {sseAddNewClient, STORAGE_DIR} = require('./storage.helpers')
+const {sseClient, STORAGE_DIR} = require('./storage.helpers')
 
 // creates or retrieves the only instance of the class
 
@@ -17,7 +17,8 @@ router.post("/upload", uploadMiddleware.array("uploaded_files"), fileController.
 // deletes a single file from the STORAGE_DIR
 router.delete("/delete", fileController.deleteFile)
 
+console.log("sseClient:", sseClient)
 // creates a new SSE event stream for the user's client
-router.get("/file-events", sseAddNewClient)
+router.get("/file-events", sseClient.addNewClient)
 
 module.exports = router
