@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "node server",
-    "dev": "nodemon server"
+    "test": "cross-env NODE_ENV=test jest",
+    "prod": "cross-env NODE_ENV=production node start",
+    "dev": "nodemon start"
   },
   "keywords": [],
   "author": "",

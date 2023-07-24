@@ -24,7 +24,7 @@ const DownloadSection = () => {
   useEffect( () => {
     // ensures that a new EventSource is created only once
     if (!listening) {
-      const events = new EventSource(BACKEND_URL + "/file-events")
+      const events = new EventSource(BACKEND_URL + "/api/file-events")
 
       events.onmessage = (event) => {
         const newEventData = JSON.parse(event.data);
