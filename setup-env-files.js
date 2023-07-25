@@ -45,8 +45,6 @@ const QRCodeFilepath = path.join(__dirname, "frontend", "public", "app-qrcode.pn
 // saves the QR code to the file
 QRCode.toFile(QRCodeFilepath, FRONTEND_URL)
 
-
-
 // create-react-app uses dotenv behind the scenes, but will ignore any env var that doesn't start with `REACT_APP_`
 frontendEnvVars = {
     HOST: privateIPAddress,
@@ -55,11 +53,35 @@ frontendEnvVars = {
     //BROWSER: "none" // uncomment this to stop react-scripts from opening a new window when the frontend server starts
 }
 
+// ensures that the PROD_STORAGE_DIR exists for when it is needed
+const PROD_STORAGE_DIR = path.join(__dirname, "backend", "prod_storage_directory")
+
+// TODO: make this synchronous. currently it ... works
+// the assumption is that if the folder can't be accessed then it doesn't exist, 
+// and an attempt to create it will occur
+console.log("Attempting to create PROD_STORAGE_DIR...")
+fs.access(PROD_STORAGE_DIR)
+    .then(console.log("PROD_STORAGE_DIR already exists."))
+    .catch(err => {
+    return fs.mkdir(PROD_STORAGE_DIR)
+        .then(console.log("PROD_STORAGE_DIR created successfully."))
+        .catch((err) => {
+            console.error("PROD_STORAGE_DIR failed to be created.")
+            throw new Error(err)
+        })
+})
+
+// TEST_STORAGE_DIR is for unit tests that perform file CRUD operations
+const TEST_STORAGE_DIR = path.join(__dirname, "backend", "test_storage_directory")
+
+
 backendEnvVars = {
     PRIVATE_IP_ADDR: privateIPAddress,
     FRONTEND_PORT: FRONTEND_PORT,
     BACKEND_PORT: BACKEND_PORT,
-    BACKEND_URL: BACKEND_URL
+    BACKEND_URL: BACKEND_URL,
+    TEST_STORAGE_DIR: TEST_STORAGE_DIR,
+    PROD_STORAGE_DIR: PROD_STORAGE_DIR
 }
 
 

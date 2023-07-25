@@ -51,7 +51,7 @@ function UploadSection() {
     }
 
     // AJAX HTTP POST request
-    fetch(BACKEND_URL + "/upload",
+    fetch(BACKEND_URL + "/api/upload",
       {
         method: "POST",
         body: formData
