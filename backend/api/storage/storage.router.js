@@ -9,7 +9,7 @@ const {sseClient, STORAGE_DIR} = require('./storage.helpers')
 const uploadMiddleware = require('./storage.middleware').uploadMiddleware
 
 // serves the files in the STORAGE_DIR as static files at the /download endpoint
-router.get('/download', express.static(STORAGE_DIR))
+router.use('/download', express.static(STORAGE_DIR))
 
 // saves multipart/form-data as one or more files to the STORAGE_DIR
 router.post("/upload", uploadMiddleware.array("uploaded_files"), fileController.uploadData)
@@ -17,7 +17,6 @@ router.post("/upload", uploadMiddleware.array("uploaded_files"), fileController.
 // deletes a single file from the STORAGE_DIR
 router.delete("/delete", fileController.deleteFile)
 
-console.log("sseClient:", sseClient)
 // creates a new SSE event stream for the user's client
 router.get("/file-events", sseClient.addNewClient)
 

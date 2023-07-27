@@ -7,6 +7,7 @@ const STORAGE_DIR = process.env.NODE_ENV == "test"
     ? process.env.TEST_STORAGE_DIR 
     : process.env.PROD_STORAGE_DIR
 
+
 getFileCategoryFromFileName = (filename) => {
     // uses the mediatype to create a categorisation for each file, used by the frontend to display relevant file icons next to each file
     const mediaType = mime.lookup(filename)
@@ -71,9 +72,6 @@ getFileMetadata = async (filenames) => {
 
 getAllFileMetadata = async () => {
     const filenames = await fs.readdir(STORAGE_DIR)
-    console.log("Debug")
-    console.log(filenames)
-    console.log(STORAGE_DIR)
     // retrieves metadata for each of those files
     return await getFileMetadata(filenames)
 }

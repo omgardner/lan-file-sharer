@@ -1,6 +1,19 @@
 const { STORAGE_DIR, sseClient} = require('./storage.helpers')
 const fs = require('fs/promises')
 const path = require('path')
+// var send = require('send')
+// var parseUrl = require('parseurl')
+
+
+
+// staticDownloads = async (req, res) => {
+//     console.log(req)
+//     send(req, "", { index: false, root: STORAGE_DIR })
+//     .once('file', (res, stat) => {
+//         console.log("send file debug:", stat)
+//     })
+//     .pipe(res)
+// }
 
 uploadData = async (req, res) => {
     // the multer upload object is middleware before this current callback function. 
@@ -43,5 +56,5 @@ deleteFile = async (req, res) => {
 
 module.exports = {
     uploadData: uploadData,
-    deleteFile: deleteFile
+    deleteFile: deleteFile,
 }

@@ -36,6 +36,7 @@ function UploadSection() {
     // add the files from both possible methods of adding files
 
     // files from the file-browser menu, when clicking on the file upload card
+    console.log(inputTagFileList)
     for (const file of inputTagFileList) {
       formData.append("uploaded_files", file);
     }
