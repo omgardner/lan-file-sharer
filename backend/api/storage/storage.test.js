@@ -51,6 +51,9 @@ const expectedFileMetadataObj = {
 beforeAll(async () => {
     // create and empty test storage dir
     // copy files from test artifacts   
+    await fs.rm(process.env.TEST_STORAGE_DIR, {force: true, recursive: true})
+    await fs.mkdir(process.env.TEST_STORAGE_DIR)
+    await fs.cp(process.env.TEST_ARTIFACTS_DIR, process.env.TEST_STORAGE_DIR, {recursive:true, force:true})
     
 })
 
