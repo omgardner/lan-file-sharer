@@ -53,9 +53,16 @@ frontendEnvVars = {
     //BROWSER: "none" // uncomment this to stop react-scripts from opening a new window when the frontend server starts
 }
 
-// ensures that the PROD_STORAGE_DIR exists for when it is needed
-const PROD_STORAGE_DIR = path.join(__dirname, "backend", "prod_storage_directory")
+const DATA_STORAGE_PARENT_DIR = path.join(__dirname, "backend", "data")
+// prod is when the servers are actually running, either in dev or prod
+const PROD_STORAGE_DIR = path.join(DATA_STORAGE_PARENT_DIR, "prod_storage_dir")
+// temporary directory used to perform tests
+const TEST_STORAGE_DIR = path.join(DATA_STORAGE_PARENT_DIR, "test_storage_dir")
+// contains files used for testing, that get copied over to TEST_STORAGE_DIR during testing
+const TEST_ARTIFACTS_DIR = path.join(DATA_STORAGE_PARENT_DIR, "test_artifacts_dir")
 
+
+// ensures that the PROD_STORAGE_DIR exists for when it is needed
 // TODO: make this synchronous. currently it ... works
 // the assumption is that if the folder can't be accessed then it doesn't exist, 
 // and an attempt to create it will occur
@@ -71,17 +78,15 @@ fs.access(PROD_STORAGE_DIR)
         })
 })
 
-// TEST_STORAGE_DIR is for unit tests that perform file CRUD operations
-const TEST_STORAGE_DIR = path.join(__dirname, "backend", "test_storage_directory")
-
 
 backendEnvVars = {
     PRIVATE_IP_ADDR: privateIPAddress,
     FRONTEND_PORT: FRONTEND_PORT,
     BACKEND_PORT: BACKEND_PORT,
     BACKEND_URL: BACKEND_URL,
+    PROD_STORAGE_DIR: PROD_STORAGE_DIR,
     TEST_STORAGE_DIR: TEST_STORAGE_DIR,
-    PROD_STORAGE_DIR: PROD_STORAGE_DIR
+    TEST_ARTIFACTS_DIR: TEST_ARTIFACTS_DIR
 }
 
 
