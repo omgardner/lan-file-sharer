@@ -1,5 +1,5 @@
 const { STORAGE_DIR, sseClient} = require('./storage.helpers')
-const fs = require('fs/promises')
+const fs = require('fs')
 const path = require('path')
 // var send = require('send')
 // var parseUrl = require('parseurl')
@@ -15,7 +15,7 @@ const path = require('path')
 //     .pipe(res)
 // }
 
-uploadData = async (req, res) => {
+uploadData = (req, res) => {
     // the multer upload object is middleware before this current callback function. 
     // This means that the file(s), if any, are already uploaded by this point.
     const uploadedFilenames = req.files.map((ele) => ele.originalname)
@@ -27,31 +27,27 @@ uploadData = async (req, res) => {
 
         // I like to live dangerously. Who needs error handling anyway? '
         // TODO: best practices, make code compatible with unit tests and integration tests
-        await fs.writeFile(path.join(STORAGE_DIR, textFilename), req.body.uploaded_text)
+        fs.writeFileSync(path.join(STORAGE_DIR, textFilename), req.body.uploaded_text)
 
         uploadedFilenames.push(textFilename)
     }
     // tells the clients listening for `/file-events` that files were uploaded and provides the metadata required for displaying the new files
-    sseClient.sendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: await getFileMetadata(uploadedFilenames) })
+    sseClient.sendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: getFileMetadata(uploadedFilenames) })
 
     // tells the client that the data was uploaded successfully
     res.status(200).end()
 }
 
-deleteFile = async (req, res) => {
-    // todo: there's a better way to handle async promises here.
+deleteFile = (req, res) => {
     // deletes a file, then tells the client which specific file was deleted
     const filename = req.body.filename
-    fs.unlink(path.join(STORAGE_DIR, filename))
-        .then(sseClient.sendFileEventToAll({ type: 'deleted', deletedFilename: filename }))
-        .then(() => res.status(200).end())
-        .catch(() => {
-            // tells the client that the unlink / delete operation failed.
-            res.status(418).end()
-        })
-
-    // tells the client that the data was deleted successfully
-    res.status(200).end()
+    try {
+        fs.unlinkSync(path.join(STORAGE_DIR, filename))
+        sseClient.sendFileEventToAll({ type: 'deleted', deletedFilename: filename })
+        res.status(200).end()
+    } catch {
+        res.status(418).end()
+    }
 }
 
 module.exports = {

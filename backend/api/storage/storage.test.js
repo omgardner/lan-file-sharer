@@ -1,7 +1,7 @@
 
 const request = require('supertest')
 const app = require('../../app')
-const fs = require('fs/promises')
+const fs = require('fs')
 const path = require('path')
 
 const {getAllFileMetadata, getFileMetadata, STORAGE_DIR} = require('./storage.helpers')
@@ -53,9 +53,9 @@ beforeAll(async () => {
     // copy files from test artifacts   
 
     //HACKY!
-    await fs.rm(process.env.TEST_STORAGE_DIR, {force: true, recursive: true})
-    await fs.mkdir(process.env.TEST_STORAGE_DIR)
-    await fs.cp(process.env.TEST_ARTIFACTS_DIR, process.env.TEST_STORAGE_DIR, {recursive:true, force:true})
+    fs.rmSync(process.env.TEST_STORAGE_DIR, {force: true, recursive: true})
+    fs.mkdirSync(process.env.TEST_STORAGE_DIR)
+    fs.cpSync(process.env.TEST_ARTIFACTS_DIR, process.env.TEST_STORAGE_DIR, {recursive:true, force:true})
     
 })
 
@@ -66,11 +66,11 @@ afterAll(() => {
 
 describe('The initial test files have valid metadata', () => {
     test('that all test files exist', async () => {
-        expect(await getAllFileMetadata()).toHaveLength(expectedAllFileMetadata.length)
+        expect(getAllFileMetadata()).toHaveLength(expectedAllFileMetadata.length)
     })
     
     test('that a test file has correctly formatted metadata', async () => {
-        expect(await getFileMetadata(["img1.png"]))
+        expect(getFileMetadata(["img1.png"]))
         .toEqual(
             expect.objectContaining([expectedFileMetadataObj])
         )
@@ -81,7 +81,7 @@ describe('The initial test files have valid metadata', () => {
 describe("downloading file", () => {
     const filename = "text-upload_1686708193.txt"
     test("that a test file's contents are identical between the API endpoint and directly reading from disk", async () => {
-        const expectedFileText = await fs.readFile(path.join(STORAGE_DIR, filename), "utf-8")
+        const expectedFileText = fs.readFileSync(path.join(STORAGE_DIR, filename), {encoding: "utf-8"})
         const actualFileText = await request(app)
             .get("/api/download/" + filename)
             .then(res => res.text)
@@ -106,12 +106,12 @@ describe("uploading text and files", () => {
         const res = await request(app)  
             .post("/api/upload")
             .field("uploaded_text", expectedTextData)
-            .field("test2", "hi there") // todo: send jsonFile as well.
+            //.field("test2", "hi there") // todo: send jsonFile as well.
         
         // server says it was successful
         expect(res.statusCode).toEqual(200)
 
-        console.log(await getAllFileMetadata())
+        console.log(getAllFileMetadata())
 
         // json file shown in metadata
         // text content
