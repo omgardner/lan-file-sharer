@@ -1,45 +1,47 @@
 
-const request = require('supertest')
+//const request = require('supertest')
+const { agent } = require('supertest')
 const app = require('../../app')
-// const fs = require('fs')
 const fse = require('fs-extra')
 const path = require('path')
 
+
 const {getAllFileMetadata, getFileMetadata, STORAGE_DIR} = require('./storage.helpers')
 
-const expectedAllFileMetadata = [
-    {
-        "fileCategory": "image",
-        "filename": "img1.png",
-        "filesize": 704076,
-        "staticURL": "http://192.168.0.14:5000/api/download/img1.png",
-        "uploadTimeEpochMs": 1690260047003.4119,
-    },
-    {
-        "fileCategory": "image",
-        "filename": "img2.jpg",
-        "filesize": 32567,
-        "staticURL": "http://192.168.0.14:5000/api/download/img2.jpg",
-        "uploadTimeEpochMs": 1690260047004.4124,
-    },
-    {
-        "fileCategory": "app",
-        "filename": "setup-env-files.js",
-        "filesize": 1993,
-        "staticURL": "http://192.168.0.14:5000/api/download/setup-env-files.js",
-        "uploadTimeEpochMs": 1690260047004.4124,
-    },
-    {
-        "fileCategory": "text",
-        "filename": "text-upload_1686708193.txt",
-        "filesize": 50,
-        "staticURL": "http://192.168.0.14:5000/api/download/text-upload_1686708193.txt",
-        "uploadTimeEpochMs": 1690260047005.4138,
-    }
-]
+// debug: this is an example of how the test_storage_dir should appear after it is created and filled with files
+// const expectedAllFileMetadata = [
+//     {
+//         "fileCategory": "image",
+//         "filename": "img1.png",
+//         "filesize": 704076,
+//         "staticURL": "http://192.168.0.14:5000/api/download/img1.png",
+//         "uploadTimeEpochMs": 1690260047003.4119,
+//     },
+//     {
+//         "fileCategory": "image",
+//         "filename": "img2.jpg",
+//         "filesize": 32567,
+//         "staticURL": "http://192.168.0.14:5000/api/download/img2.jpg",
+//         "uploadTimeEpochMs": 1690260047004.4124,
+//     },
+//     {
+//         "fileCategory": "app",
+//         "filename": "setup-env-files.js",
+//         "filesize": 1993,
+//         "staticURL": "http://192.168.0.14:5000/api/download/setup-env-files.js",
+//         "uploadTimeEpochMs": 1690260047004.4124,
+//     },
+//     {
+//         "fileCategory": "text",
+//         "filename": "text-upload_1686708193.txt",
+//         "filesize": 50,
+//         "staticURL": "http://192.168.0.14:5000/api/download/text-upload_1686708193.txt",
+//         "uploadTimeEpochMs": 1690260047005.4138,
+//     }
+// ]
 
 async function getFileContentsViaAPI(filename) {
-    return await request(app)
+    return await request
             .get("/api/download/" + filename)
             .then(res => res.text)
 }
@@ -51,7 +53,6 @@ function getFileContentsViaFileSystem(filepath){
     )
 }
 
-
 const expectedFileMetadataObj = {
     "fileCategory": expect.any(String),
     "filename": expect.any(String),
@@ -61,28 +62,41 @@ const expectedFileMetadataObj = {
 }
 const initialFilenames = ["img1.png", "img2.jpg","setup-env-files.js","text-upload_1686708193.txt"]    
 
-beforeAll(async () => {
+var httpServer
+var request
+
+beforeAll(() => {
     // create and empty test storage dir
-    // copy files from test artifacts   
+    // copy files from test artifacts       
     fse.emptyDirSync(STORAGE_DIR)
     initialFilenames.forEach((filename) => {
         fse.copyFileSync(
             path.join(process.env.TEST_ARTIFACTS_DIR, filename),
             path.join(STORAGE_DIR, filename)
         )
+    })  
+
+    // starts the server
+    httpServer = app.listen(process.env.BACKEND_PORT, process.env.PRIVATE_IP_ADDR, () => {
+        console.log(`Backend test server started at ${process.env.BACKEND_URL}`);
     })
-    
-    
+    // creates the request object based around this running server
+    request = agent(httpServer)
 })
 
+
 afterAll(() => {
-    // remove test storage dir files
-})
+    // shuts down the test server
+    // https://stackoverflow.com/questions/14626636/how-do-i-shutdown-a-node-js-https-server-immediately
+    httpServer.emit('close')
+})  
+
+
 
 
 describe('The initial test files have valid metadata', () => {
     test('that all test files exist', async () => {
-        expect(getAllFileMetadata()).toHaveLength(expectedAllFileMetadata.length)
+        expect(getAllFileMetadata()).toHaveLength(initialFilenames.length)
     })
     
     test('that a test file has correctly formatted metadata', async () => {
@@ -107,7 +121,7 @@ describe("uploads the text content and file successfully", () => {
     const jsonFilename = "upload-test-1.json"
 
     test('upload endpoint returns an OK response', async () => {
-        const res = await request(app)  
+        const res = await request  
             .post("/api/upload")
             .field("uploaded_text", expectedTextData)
             .attach("uploaded_files", path.join(process.env.TEST_ARTIFACTS_DIR, jsonFilename)) 
@@ -150,7 +164,7 @@ describe("deleting a file", () => {
     })
 
     test("delete endpoint returns an OK response", async () => {
-        const res = await request(app)
+        const res = await request
             .delete("/api/delete")
             .send(JSON.stringify({"filename": filename }))
             .set("Content-Type", "application/json")
