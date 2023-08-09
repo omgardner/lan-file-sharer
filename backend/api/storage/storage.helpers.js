@@ -1,6 +1,7 @@
 var mime = require('mime-types')
 const fs = require('fs')
 const path = require('path')
+const sse = require("better-sse")
 
 // use a separate folder for testing. This assumes that the prod and dev server will use the same directory
 const STORAGE_DIR = process.env.NODE_ENV == "test" 
@@ -77,12 +78,7 @@ getAllFileMetadata = () => {
 
 var sseClient = (function () {
     // declare private information:
-    var clients = []
-    const headers = {
-        'Content-Type': 'text/event-stream',
-        'Connection': 'keep-alive',
-        'Cache-Control': 'no-cache'
-    }
+    var channel = sse.createChannel()
 
     // return public information (usually functions):
     return {
@@ -90,33 +86,18 @@ var sseClient = (function () {
     
             // sends out the current state of the file metadata
             const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
-            const data = `data: ${JSON.stringify(event)}\n\n`
+            // const data = `data: ${JSON.stringify(event)}\n\n`
         
-            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
-            res.writeHead(200, headers)
-            res.write(data)
+            // // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
+            // res.writeHead(200, headers)
+            // res.write(data)
         
-            // stores the still alive response as a unique client
-            const clientId = Date.now()
-            const newClient = {
-                id: clientId,
-                response: res
-            }
-            
-            clients.push(newClient)
-            console.log(`${clientId} SSE Connection opened`)
-        
-            // removes the client if the connection closes
-            req.on('close', () => {
-                console.log(`${clientId} SSE Connection closed`)
-                clients = clients.filter(client => client.id !== clientId)
-            })
+            const session = await sse.createSession(req, res)
+            session.push(event)
+
+
         },
-        sendFileEventToAll: function(newEventData) {
-            console.log(`Sending new event data to ${clients.length} client(s)`)
-            console.log(newEventData)
-            clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
-        }
+        sendFileEventToAll: channel.broadcast
     }
 })()
 

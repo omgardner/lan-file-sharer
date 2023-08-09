@@ -1,48 +1,11 @@
-
-//const request = require('supertest')
-//const { agent } = require('supertest')
-const needle = require('needle')
-const app = require('../../app')
-const fse = require('fs-extra')
-const path = require('path')
-const {promisify} = require('util')
-const EventSource = require('eventsource')
-
-const FormData = require('form-data')
+const needle = require('needle')    // http client
+const app = require('../../app')    // expressjs app
+const fse = require('fs-extra')     // wrapper around node's fs package with added utility functions
+const path = require('path')        // simple path utility functions
+const EventSource = require('eventsource')  // nodejs implementation of a Server-Sent Events client
+const stoppable = require('stoppable') // greatly simplifies the process of stopping the expressjs server
 
 const {getAllFileMetadata, getFileMetadata, STORAGE_DIR} = require('./storage.helpers')
-
-// debug: this is an example of how the test_storage_dir should appear after it is created and filled with files
-// const expectedAllFileMetadata = [
-//     {
-//         "fileCategory": "image",
-//         "filename": "img1.png",
-//         "filesize": 704076,
-//         "staticURL": "http://192.168.0.14:5000/api/download/img1.png",
-//         "uploadTimeEpochMs": 1690260047003.4119,
-//     },
-//     {
-//         "fileCategory": "image",
-//         "filename": "img2.jpg",
-//         "filesize": 32567,
-//         "staticURL": "http://192.168.0.14:5000/api/download/img2.jpg",
-//         "uploadTimeEpochMs": 1690260047004.4124,
-//     },
-//     {
-//         "fileCategory": "app",
-//         "filename": "setup-env-files.js",
-//         "filesize": 1993,
-//         "staticURL": "http://192.168.0.14:5000/api/download/setup-env-files.js",
-//         "uploadTimeEpochMs": 1690260047004.4124,
-//     },
-//     {
-//         "fileCategory": "text",
-//         "filename": "text-upload_1686708193.txt",
-//         "filesize": 50,
-//         "staticURL": "http://192.168.0.14:5000/api/download/text-upload_1686708193.txt",
-//         "uploadTimeEpochMs": 1690260047005.4138,
-//     }
-// ]
 
 async function getFileContentsViaAPI(filename) {
     // https://www.npmjs.com/package/needle#user-content-response-options
@@ -57,6 +20,10 @@ function getFileContentsViaFileSystem(filepath){
     )
 }
 
+// helper function to create the full url path
+const u = (path) => process.env.BACKEND_URL + path
+
+
 const expectedFileMetadataObj = {
     "fileCategory": expect.any(String),
     "filename": expect.any(String),
@@ -66,14 +33,10 @@ const expectedFileMetadataObj = {
 }
 const initialFilenames = ["img1.png", "img2.jpg","setup-env-files.js","text-upload_1686708193.txt"]    
 
+var testSSEClient1
 var httpServer
 
-// // create full path
-const u = path => process.env.BACKEND_URL + path
-
-var testSSEClient1
-
-beforeAll((done) => {
+beforeAll(async () => {
     // create and empty test storage dir
     // copy files from test artifacts       
     fse.emptyDirSync(STORAGE_DIR)
@@ -85,27 +48,25 @@ beforeAll((done) => {
     })
 
     // starts the server
-    httpServer = app.listen(process.env.BACKEND_PORT, process.env.PRIVATE_IP_ADDR, () => {
-        console.log(`Backend test server started at ${process.env.BACKEND_URL}`);
-    })
-    
+    httpServer = stoppable(
+        app.listen(process.env.BACKEND_PORT, process.env.PRIVATE_IP_ADDR, () => {
+            console.log(`Backend test server started at ${process.env.BACKEND_URL}`);
+        }), 0
+    )
 
     testSSEClient1 = new EventSource(u("/api/file-events"))
-    testSSEClient1.onopen = () => {done()}
+    // testSSEClient1.onmessage = (event) => {
+    //     console.log("sse event:", JSON.parse(event.data))        
+    // }
+    
+    // wait for the testSSEClient's 'onopen' event to be triggered
+    await new Promise(resolve => testSSEClient1.onopen = resolve)
 })
 
-
-afterAll(async () => {
-    // shuts down the test server
-    // https://stackoverflow.com/questions/14626636/how-do-i-shutdown-a-node-js-https-server-immediately
-
+afterAll(() => {
     testSSEClient1.close()
-    //httpServer.emit('close')
-    httpServer.close()
+    httpServer.stop()
 })  
-
-
-
 
 describe('The initial test files have valid metadata', () => {
     test('that all test files exist', async () => {
@@ -129,16 +90,12 @@ describe("downloading file", () => {
     })
 })
 
+
 describe("uploads the text content and file successfully", () => {
     const expectedTextData = "<<expected text file contents>>"
     const jsonFilename = "upload-test-1.json"
 
     test('upload endpoint returns an OK response', async () => {
-        // const formData = new FormData();
-        // formData.append('uploaded_text', expectedTextData)
-        // formData.append('uploaded_files', fse.createReadStream(path.join(process.env.TEST_ARTIFACTS_DIR, jsonFilename)))
-        
-
         postData = {
             'uploaded_text': expectedTextData,
             'uploaded_files': {
