@@ -43,7 +43,6 @@ const App = () => {
           </FileListProvider>
         </Grid>
       </Grid>
-      
     </ThemeProvider >
   )
 }

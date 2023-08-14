@@ -41,11 +41,13 @@ uploadData = (req, res) => {
 deleteFile = (req, res) => {
     // deletes a file, then tells the client which specific file was deleted
     const filename = req.body.filename
+    
     try {
         fs.unlinkSync(path.join(STORAGE_DIR, filename))
         sseClientHandler.sendFileEventToAll({ type: 'deleted', deletedFilename: filename })
         res.status(200).end()
-    } catch {
+    } catch (err) {
+        console.log(err)
         res.status(418).end()
     }
 }

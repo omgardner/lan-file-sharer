@@ -1,7 +1,6 @@
 var mime = require('mime-types')
 const fs = require('fs')
 const path = require('path')
-const sse = require("better-sse")
 
 // use a separate folder for testing. This assumes that the prod and dev server will use the same directory
 const STORAGE_DIR = process.env.NODE_ENV == "test" 
@@ -32,7 +31,6 @@ getFileCategoryFromFileName = (filename) => {
         // e.g. if mediaType is undefined or not a string
         return "misc"
     }
-
 }
 
 getEpochTime = () => {
@@ -76,20 +74,49 @@ getAllFileMetadata = () => {
 // https://stackoverflow.com/questions/1479319/simplest-cleanest-way-to-implement-a-singleton-in-javascript
 // this is the least-hacky method to implement the singleton pattern I could find
 
-var sseClientHandler = (function () {
-    // declare private information:
-    var channel = sse.createChannel()
 
-    // return public information (usually functions):
+var sseClientHandler = (function () {
+    /** 
+     *  
+     * */ 
+
+    var clients = []
+    const headers = {
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache'
+    }
+
     return {
-        addNewClient: async function(req, res, next) {
-            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
+        addNewClient: async function(req, res, next) {      
+            // stores the still alive response as a unique client
+            const clientId = Date.now()
+            const newClient = {
+                id: clientId,
+                response: res
+            }
+            
+            // removes the client if the connection closes
+            req.on('close', () => {
+                clients = clients.filter(client => client.id !== clientId)
+            })
+
+            // adds the client to an array of clients
+            clients.push(newClient)
+
+            // sends the current state of the storage dir's file metadata
+            // this acts as the initial sync between the backend and the frontend
             const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
-            const session = await sse.createSession(req, res)
-            session.push(event)
+            const data = `data: ${JSON.stringify(event)}\n\n`
+        
+            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
+            res.writeHead(200, headers)
+            res.write(data)
         },
-        sendFileEventToAll: (data) => {
-            channel.broadcast(data)
+        sendFileEventToAll: function(newEventData) {
+            // this acts to keep all clients in sync whenever the storage dir changes
+            // this function gets called by request handlers for file upload and deletion
+            clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
         }
     }
 })()
