@@ -33,11 +33,11 @@ function DownloadItemInteractions({ fileMetadata }) {
     }
 
     function deleteFile() {
-        fetch(BACKEND_URL + "/api/delete",
+        fetch(BACKEND_URL + "/api/delete/",
             {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ "filename": fileMetadata.filename })
+                body: JSON.stringify({filename: fileMetadata.filename})
             }
         )
             .catch((error) => {

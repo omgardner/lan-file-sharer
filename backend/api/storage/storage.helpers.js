@@ -1,5 +1,5 @@
 var mime = require('mime-types')
-const fs = require('fs/promises')
+const fs = require('fs')
 const path = require('path')
 
 // use a separate folder for testing. This assumes that the prod and dev server will use the same directory
@@ -31,14 +31,13 @@ getFileCategoryFromFileName = (filename) => {
         // e.g. if mediaType is undefined or not a string
         return "misc"
     }
-
 }
 
 getEpochTime = () => {
     return Math.floor(new Date() / 1000)
 }
 
-getFileMetadata = async (filenames) => {
+getFileMetadata = (filenames) => {
     /*  Uses an array of filenames to get stats for each file, and returns an array of objects containing each file's metadata
     
         NOTE: promises aren't resolved when awaited inside an 'array.map', so you need to resolve them on the outside.
@@ -47,33 +46,27 @@ getFileMetadata = async (filenames) => {
         Helpful Resource:
             https://zellwk.com/blog/async-await-in-loops/
     */
-    const fileMetadataArr = await Promise.all(
-        filenames.map(async (filename) => {
-            try {
-                
-                const stats = await fs.stat(path.join(STORAGE_DIR, filename))
-                return {
-                    "filename": filename,
-                    "filesize": stats.size,
-                    "uploadTimeEpochMs": stats.mtimeMs,
-                    "fileCategory": getFileCategoryFromFileName(filename),
-                    "staticURL": `${process.env.BACKEND_URL}/api/download/${filename}`
-                }
-            } catch (e) {
-                // this element has a null value caused by an error
-                // most likely caused by the file not existing in the STORAGE_DIR
-                return
-            }
+    var fileMetadata = []
 
-        }))
-    // filters out any null elements in the array. 
-    return fileMetadataArr.filter(fileMetadata => fileMetadata != null)
+    filenames.forEach((filename) => {
+        const stats = fs.statSync(path.join(STORAGE_DIR, filename))
+        if (stats !== null) {
+            fileMetadata.push({
+                filename: filename,
+                filesize: stats.size,
+                uploadTimeEpochMs: stats.mtimeMs,
+                fileCategory: getFileCategoryFromFileName(filename),
+                staticURL: `${process.env.BACKEND_URL}/api/download/${filename}`
+            })
+        }
+    })
+    return fileMetadata
 }
 
-getAllFileMetadata = async () => {
-    const filenames = await fs.readdir(STORAGE_DIR)
+getAllFileMetadata = () => {
+    const filenames = fs.readdirSync(STORAGE_DIR)
     // retrieves metadata for each of those files
-    return await getFileMetadata(filenames)
+    return getFileMetadata(filenames)
 }
 
 
@@ -81,8 +74,12 @@ getAllFileMetadata = async () => {
 // https://stackoverflow.com/questions/1479319/simplest-cleanest-way-to-implement-a-singleton-in-javascript
 // this is the least-hacky method to implement the singleton pattern I could find
 
-var sseClient = (function () {
-    // declare private information:
+
+var sseClientHandler = (function () {
+    /** 
+     *  
+     * */ 
+
     var clients = []
     const headers = {
         'Content-Type': 'text/event-stream',
@@ -90,18 +87,8 @@ var sseClient = (function () {
         'Cache-Control': 'no-cache'
     }
 
-    // return public information (usually functions):
     return {
-        addNewClient: async function(req, res, next) {
-    
-            // sends out the current state of the file metadata
-            const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
-            const data = `data: ${JSON.stringify(event)}\n\n`
-        
-            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
-            res.writeHead(200, headers)
-            res.write(data)
-        
+        addNewClient: async function(req, res, next) {      
             // stores the still alive response as a unique client
             const clientId = Date.now()
             const newClient = {
@@ -109,18 +96,26 @@ var sseClient = (function () {
                 response: res
             }
             
-            clients.push(newClient)
-            console.log(`${clientId} SSE Connection opened`)
-        
             // removes the client if the connection closes
             req.on('close', () => {
-                console.log(`${clientId} SSE Connection closed`)
                 clients = clients.filter(client => client.id !== clientId)
             })
+
+            // adds the client to an array of clients
+            clients.push(newClient)
+
+            // sends the current state of the storage dir's file metadata
+            // this acts as the initial sync between the backend and the frontend
+            const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
+            const data = `data: ${JSON.stringify(event)}\n\n`
+        
+            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
+            res.writeHead(200, headers)
+            res.write(data)
         },
         sendFileEventToAll: function(newEventData) {
-            console.log(`Sending new event data to ${clients.length} client(s)`)
-            console.log(newEventData)
+            // this acts to keep all clients in sync whenever the storage dir changes
+            // this function gets called by request handlers for file upload and deletion
             clients.forEach(client => client.response.write(`data: ${JSON.stringify(newEventData)}\n\n`))
         }
     }
@@ -132,5 +127,5 @@ module.exports = {
     getEpochTime: getEpochTime,
     getAllFileMetadata: getAllFileMetadata,
     getFileMetadata: getFileMetadata,
-    sseClient:sseClient
+    sseClientHandler:sseClientHandler
 }

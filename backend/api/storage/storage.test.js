@@ -1,122 +1,196 @@
+const needle = require('needle')    // http client
+const app = require('../../app')    // expressjs app
+const fse = require('fs-extra')     // wrapper around node's fs package with added utility functions
+const path = require('path')        // simple path utility functions
+const EventSource = require('eventsource')  // nodejs implementation of a Server-Sent Events client
+const stoppable = require('stoppable') // greatly simplifies the process of stopping the expressjs server
+const {getAllFileMetadata, getFileMetadata, STORAGE_DIR, sseClientHandler} = require('./storage.helpers')
 
-const request = require('supertest')
-const app = require('../../app')
-const fs = require('fs/promises')
-const path = require('path')
-
-const {getAllFileMetadata, getFileMetadata, STORAGE_DIR} = require('./storage.helpers')
-
-const expectedAllFileMetadata = [
-    {
-        "fileCategory": "image",
-        "filename": "img1.png",
-        "filesize": 704076,
-        "staticURL": "http://192.168.0.14:5000/api/download/img1.png",
-        "uploadTimeEpochMs": 1690260047003.4119,
-    },
-    {
-        "fileCategory": "image",
-        "filename": "img2.jpg",
-        "filesize": 32567,
-        "staticURL": "http://192.168.0.14:5000/api/download/img2.jpg",
-        "uploadTimeEpochMs": 1690260047004.4124,
-    },
-    {
-        "fileCategory": "app",
-        "filename": "setup-env-files.js",
-        "filesize": 1993,
-        "staticURL": "http://192.168.0.14:5000/api/download/setup-env-files.js",
-        "uploadTimeEpochMs": 1690260047004.4124,
-    },
-    {
-        "fileCategory": "text",
-        "filename": "text-upload_1686708193.txt",
-        "filesize": 50,
-        "staticURL": "http://192.168.0.14:5000/api/download/text-upload_1686708193.txt",
-        "uploadTimeEpochMs": 1690260047005.4138,
-    }
-]
-
-const expectedFileMetadataObj = {
-    "fileCategory": expect.any(String),
-    "filename": expect.any(String),
-    "filesize": expect.any(Number),
-    "staticURL": expect.stringMatching(new RegExp("https?://")), 
-    "uploadTimeEpochMs": expect.any(Number)
+async function getFileContentsViaAPI(filename) {
+    // https://www.npmjs.com/package/needle#user-content-response-options
+    // this function is to get the raw contents of the file via the API, so any parsing will occur later
+    return needle('GET', u(`/api/download/${filename}`), {parse_response: false}).then(res => {return res.body})
 }
 
+function getFileContentsViaFileSystem(filepath){
+    return fse.readFileSync(
+        filepath, 
+        {encoding: "utf-8"}
+    )
+}
+
+function getMostRecentlyUploadedTextFileFilename() {
+    // the text upload creates a file of the format `text-upload-EPOCHTIME.txt`, so the filename needs to be found dynamically
+    return getAllFileMetadata()        
+                        .filter((ele) => ele.filename.startsWith("text-upload_"))
+                        .sort((a,b) => b.uploadTimeEpochMs - a.uploadTimeEpochMs)
+                        .at(0) 
+                        .filename
+}
+
+
+// helper function to create the full url path
+const u = (path) => process.env.BACKEND_URL + path
+
+const initialFilenames = ["img1.png", "img2.jpg","setup-env-files.js","text-upload_1686708193.txt"]    
+
+var httpServer
+
+beforeAll(async () => {
+    // create and empty test storage dir
+    // copy files from test artifacts       
+    fse.emptyDirSync(STORAGE_DIR)
+    initialFilenames.forEach((filename) => {
+        fse.copyFileSync(
+            path.join(process.env.TEST_ARTIFACTS_DIR, filename),
+            path.join(STORAGE_DIR, filename)
+        )
+    })
+
+    // starts the server
+    // expressjs / http / net.Server are complicated to fully stop, so the `stoppable` package allows to simply type `httpServer.stop()`
+    httpServer = stoppable(
+        app.listen(process.env.BACKEND_PORT, process.env.PRIVATE_IP_ADDR, () => {
+            console.log(`Backend TESTING server started at ${process.env.BACKEND_URL}`);
+        }), 0
+    )
+    
+    // this allows us to test how the `sseClientHandler.sendFileEventToAll` gets called as various CRUD operations occur
+    jest.spyOn(sseClientHandler, 'sendFileEventToAll')
+})
+
+afterAll(() => {
+    httpServer.stop()
+})  
+
+
 describe('The initial test files have valid metadata', () => {
+    const expectedFileMetadataObjPattern = {
+        "fileCategory": expect.any(String),
+        "filename": expect.any(String),
+        "filesize": expect.any(Number),
+        "staticURL": expect.stringMatching(new RegExp("https?://")), 
+        "uploadTimeEpochMs": expect.any(Number)
+    }
+
     test('that all test files exist', async () => {
-        expect(await getAllFileMetadata()).toHaveLength(expectedAllFileMetadata.length)
+        expect(getAllFileMetadata()).toHaveLength(initialFilenames.length)
     })
     
     test('that a test file has correctly formatted metadata', async () => {
-        expect(await getFileMetadata(["img1.png"]))
-        .toEqual(
-            expect.objectContaining([expectedFileMetadataObj])
-        )
+        
+        expect(getFileMetadata(["img1.png"]))
+        .toEqual([expectedFileMetadataObjPattern])
     })
 })
-
 
 describe("downloading file", () => {
-    const filename = "text-upload_1686708193.txt"
-    test("that a test file's contents are identical between the API endpoint and directly reading from disk", async () => {
-        const expectedFileText = await fs.readFile(path.join(STORAGE_DIR, filename), "utf-8")
-        const actualFileText = await request(app)
-            .get("/api/download/"+filename)
-            .then(res => res.text)
-        
-        expect(actualFileText).toEqual(expectedFileText)
-            
-        
+    test("the stored file has the same contents when retrieved via the API", async () => {
+        const filename = "text-upload_1686708193.txt"
+        const filepath = path.join(STORAGE_DIR, filename)
+        expect(await getFileContentsViaAPI(filename))
+        .toEqual(getFileContentsViaFileSystem(filepath))
     })
-
 })
 
 
-// describe('Uploading multipart form data', () => {
-//     const expectedTextData = "expected text file contents"
+describe("uploads the text content and file successfully", () => {
+    const expectedTextData = "<<expected text file contents>>"
+    const jsonFilename = "upload-test-1.json"
 
-//     const formData = new FormData()
-//     // dummy text
-//     formData.append("uploaded_text", expectedTextData)
-    
-//     const jsonFilename = "testing-json-file.json"
-//     const jsonObjDeserialised = {
-//         "keyA": "valA",
-//         "keyB": 10
-//     }
-//     const jsonObjSerialised = JSON.stringify(jsonObjDeserialised)
-    
-//     const jsonFile = new Blob([jsonObjSerialised])
-//     jsonFile.filename = jsonFilename
-    
-//     // DEBUG commented out
-//     //formData.append("uploaded_files", jsonFile)
-    
-//     // todo figure out if doing a `.send(formData)` is the correct approach.
-//     it('uploads the text content and file successfully', async () => {
-//         const res = await request(app)  
-//             .post("/api/upload")
-//             //.set("enctype", "multipart/form-data")
-//             .send(formData)
+    test('upload endpoint returns an OK response', async () => {
+        postData = {
+            'uploaded_text': expectedTextData,
+            'uploaded_files': {
+                file: path.join(process.env.TEST_ARTIFACTS_DIR, jsonFilename),
+                content_type: 'application/json'
+            }
+        }
+
+        await needle("POST", u("/api/upload"), postData, {multipart: true})
+            .then((res) => expect(res.statusCode).toEqual(200))
+    })
+
+    test("text data was stored correctly and is retrievable via the API", async () => {
+        //      the filename is autogenerated, so we find the most recent file 
+        //      with the format "text-upload_EPOCHDATE" and validate its contents
         
-//         expect(res.statusCode).toEqual(200)
+        const textUploadFilename = getMostRecentlyUploadedTextFileFilename()
+        const textUploadFilepath = path.join(STORAGE_DIR, textUploadFilename)
+        expect(await(getFileContentsViaAPI(textUploadFilename)))
+            .toEqual(getFileContentsViaFileSystem(textUploadFilepath))
+    })
 
-//         // todo check for text file with autogenerated name
+     // text data was uploaded and is retrievable
+    test("uploaded file was stored correctly and is retrievable via the API", async () => {
+        // uploaded file was uploaded and is retrievable
+        const jsonFilepath = path.join(STORAGE_DIR, jsonFilename)
+        expect(await getFileContentsViaAPI(jsonFilename))
+            .toEqual(getFileContentsViaFileSystem(jsonFilepath))
+    })
 
-//         // console.log(expectedFileMetadataObj)
-//         // // the file is found on the server, implied by the returned metadata
-//         // expect(await getFileMetadataMeta(jsonFilename).toEqual(
-//         //     expect.objectContaining(expectedFileMetadataObj)
-//         // ))
-//     })
+    test("the upload metadata was broadcast by the sseClientHandler", () => {
+        expect(sseClientHandler.sendFileEventToAll).toHaveBeenLastCalledWith({
+            type: 'uploaded', 
+            uploadedFileMetadataArr: expect.any(Array)
+        })
+    })
+  
+})
+
+
+describe("deleting a file", () => {
+    const filename = "img2.jpg"
+    const filepath = path.join(STORAGE_DIR, filename)
+
+    test("the file exists at the beginning of the test", () => {
+        expect(fse.pathExistsSync(filepath)).toBe(true)
+    })
+
+    test("delete endpoint returns an OK response", async () => {
+        await needle('DELETE', u('/api/delete'), {"filename": filename }, { json: true })
+        .then(res => expect(res.statusCode).toEqual(200))
+    })
+
+    test("file no longer exists", () => {
+        expect(fse.pathExistsSync(filepath)).toBe(false)
+    })
+    test("the delete metadata was broadcast by the sseClientHandler", () => {
+        expect(sseClientHandler.sendFileEventToAll).toHaveBeenLastCalledWith({ 
+            type: 'deleted', 
+            deletedFilename: expect.any(String)
+        })
+    })
+})
+
+describe("SSE Client connection successful", (teardownIsDone) => {
+    var testSSEClient1
+    var messageData
+
+    beforeAll((setupIsDone) => {
+        testSSEClient1 = new EventSource(u("/api/file-events"))
+        testSSEClient1.onmessage = (event) => {
+            messageData = JSON.parse(event.data)
+        }
+        testSSEClient1.onopen = () => setupIsDone()
+    })
     
-// })
+    afterAll(() => {
+        // closes the describe block once the sse client emits the 'close' message. this prevents the handle from staying open
+        testSSEClient1.addEventListener('close', () => teardownIsDone()) 
+        testSSEClient1.close()
+    })
+
+    test("SSE client receives the initial sync message with type 'reloaded'", () => {
+        expect(messageData.type).toEqual("reloaded")
+    })
+
+    test("SSE client's metadata matches the current state of the storage dir", () => {
+        const currentAllFileMetadata = getAllFileMetadata()
+        // 4 initial files + 2 uploaded - 1 deleted
+        expect(messageData.fileMetadataArr.length).toEqual(currentAllFileMetadata.length)
+    })
 
 
-
-
-
+})
 
