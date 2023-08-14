@@ -1,4 +1,4 @@
-const { STORAGE_DIR, sseClient} = require('./storage.helpers')
+const { STORAGE_DIR, sseClientHandler} = require('./storage.helpers')
 const fs = require('fs')
 const path = require('path')
 // var send = require('send')
@@ -32,7 +32,7 @@ uploadData = (req, res) => {
         uploadedFilenames.push(textFilename)
     }
     // tells the clients listening for `/file-events` that files were uploaded and provides the metadata required for displaying the new files
-    sseClient.sendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: getFileMetadata(uploadedFilenames) })
+    sseClientHandler.sendFileEventToAll({ type: 'uploaded', uploadedFileMetadataArr: getFileMetadata(uploadedFilenames)})
 
     // tells the client that the data was uploaded successfully
     res.status(200).end()
@@ -43,7 +43,7 @@ deleteFile = (req, res) => {
     const filename = req.body.filename
     try {
         fs.unlinkSync(path.join(STORAGE_DIR, filename))
-        sseClient.sendFileEventToAll({ type: 'deleted', deletedFilename: filename })
+        sseClientHandler.sendFileEventToAll({ type: 'deleted', deletedFilename: filename })
         res.status(200).end()
     } catch {
         res.status(418).end()

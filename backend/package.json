@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "dotenv cross-env NODE_ENV=test jest -- --detectOpenHandles",
+    "test": "dotenv cross-env NODE_ENV=test jest -- --detectOpenHandles --runInBand",
     "prod": "cross-env NODE_ENV=production node start",
     "dev": "cross-env DEBUG=express:*,send nodemon start"
   },

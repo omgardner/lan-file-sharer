@@ -4,8 +4,9 @@ const fse = require('fs-extra')     // wrapper around node's fs package with add
 const path = require('path')        // simple path utility functions
 const EventSource = require('eventsource')  // nodejs implementation of a Server-Sent Events client
 const stoppable = require('stoppable') // greatly simplifies the process of stopping the expressjs server
+const {getAllFileMetadata, getFileMetadata, STORAGE_DIR, sseClientHandler} = require('./storage.helpers')
 
-const {getAllFileMetadata, getFileMetadata, STORAGE_DIR} = require('./storage.helpers')
+
 
 async function getFileContentsViaAPI(filename) {
     // https://www.npmjs.com/package/needle#user-content-response-options
@@ -23,8 +24,7 @@ function getFileContentsViaFileSystem(filepath){
 // helper function to create the full url path
 const u = (path) => process.env.BACKEND_URL + path
 
-
-const expectedFileMetadataObj = {
+const expectedFileMetadataObjPattern = {
     "fileCategory": expect.any(String),
     "filename": expect.any(String),
     "filesize": expect.any(Number),
@@ -33,8 +33,8 @@ const expectedFileMetadataObj = {
 }
 const initialFilenames = ["img1.png", "img2.jpg","setup-env-files.js","text-upload_1686708193.txt"]    
 
-var testSSEClient1
 var httpServer
+
 
 beforeAll(async () => {
     // create and empty test storage dir
@@ -54,19 +54,17 @@ beforeAll(async () => {
         }), 0
     )
 
-    testSSEClient1 = new EventSource(u("/api/file-events"))
-    // testSSEClient1.onmessage = (event) => {
-    //     console.log("sse event:", JSON.parse(event.data))        
-    // }
-    
-    // wait for the testSSEClient's 'onopen' event to be triggered
-    await new Promise(resolve => testSSEClient1.onopen = resolve)
+    jest.spyOn(sseClientHandler, 'sendFileEventToAll')
+    //jest.spyOn(sseClientHandler, 'addNewClient')
 })
 
 afterAll(() => {
-    testSSEClient1.close()
+    //testSSEClient1.close()
     httpServer.stop()
 })  
+
+
+
 
 describe('The initial test files have valid metadata', () => {
     test('that all test files exist', async () => {
@@ -75,9 +73,7 @@ describe('The initial test files have valid metadata', () => {
     
     test('that a test file has correctly formatted metadata', async () => {
         expect(getFileMetadata(["img1.png"]))
-        .toEqual(
-            expect.objectContaining([expectedFileMetadataObj])
-        )
+        .toEqual([expectedFileMetadataObjPattern])
     })
 })
 
@@ -130,6 +126,13 @@ describe("uploads the text content and file successfully", () => {
             .toEqual(getFileContentsViaFileSystem(jsonFilepath))
     })
 
+    test("the upload metadata was broadcast by the sseClientHandler", () => {
+        expect(sseClientHandler.sendFileEventToAll).toHaveBeenLastCalledWith({
+            type: 'uploaded', 
+            uploadedFileMetadataArr: expect.any(Array)
+        })
+    })
+  
 })
 
 
@@ -149,5 +152,37 @@ describe("deleting a file", () => {
     test("file no longer exists", () => {
         expect(fse.pathExistsSync(filepath)).toBe(false)
     })
+    test("the delete metadata was broadcast by the sseClientHandler", () => {
+        expect(sseClientHandler.sendFileEventToAll).toHaveBeenLastCalledWith({ 
+            type: 'deleted', 
+            deletedFilename: expect.any(String)
+        })
+    })
+})
+
+describe("SSE Client connection successful", (teardownIsDone) => {
+    var testSSEClient1
+    var messageData
+
+    beforeAll((setupIsDone) => {
+        testSSEClient1 = new EventSource(u("/api/file-events"))
+        testSSEClient1.onmessage = (event) => {messageData = JSON.parse(event.data)}
+        testSSEClient1.onopen = () => setupIsDone()
+    })
+    
+    afterAll(() => {
+        testSSEClient1.addEventListener('close', () => teardownIsDone()) 
+        testSSEClient1.close()
+    })
+
+    test("new SSE client receives the reloaded event without issue", async () => {
+        expect(messageData.type).toEqual("reloaded")
+        // 4 initial files + 2 uploaded - 1 deleted
+        expect(messageData.fileMetadataArr.length).toEqual(5)
+    })
+
+    
+
+
 })
 

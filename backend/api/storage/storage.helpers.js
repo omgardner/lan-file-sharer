@@ -76,28 +76,21 @@ getAllFileMetadata = () => {
 // https://stackoverflow.com/questions/1479319/simplest-cleanest-way-to-implement-a-singleton-in-javascript
 // this is the least-hacky method to implement the singleton pattern I could find
 
-var sseClient = (function () {
+var sseClientHandler = (function () {
     // declare private information:
     var channel = sse.createChannel()
 
     // return public information (usually functions):
     return {
         addNewClient: async function(req, res, next) {
-    
-            // sends out the current state of the file metadata
+            // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
             const event = { type: "reloaded", fileMetadataArr: await getAllFileMetadata()}
-            // const data = `data: ${JSON.stringify(event)}\n\n`
-        
-            // // begins the initial SSE event-stream, and sends out the current state of the STORAGE_DIR (as fetched by getAllFileMetadata)
-            // res.writeHead(200, headers)
-            // res.write(data)
-        
             const session = await sse.createSession(req, res)
             session.push(event)
-
-
         },
-        sendFileEventToAll: channel.broadcast
+        sendFileEventToAll: (data) => {
+            channel.broadcast(data)
+        }
     }
 })()
 
@@ -107,5 +100,5 @@ module.exports = {
     getEpochTime: getEpochTime,
     getAllFileMetadata: getAllFileMetadata,
     getFileMetadata: getFileMetadata,
-    sseClient:sseClient
+    sseClientHandler:sseClientHandler
 }
