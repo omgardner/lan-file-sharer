@@ -13,7 +13,8 @@
     "setup-and-install": "npm run setup && concurrently \"npm run backend-install\" \"npm run frontend-install\"",
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
     "rebuild-prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run rebuild-prod\" ",
-    "prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run prod\" "
+    "prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run prod\" ",
+	"test": "cd backend && npm run test"
   },
   "browserslist": {
     "production": [

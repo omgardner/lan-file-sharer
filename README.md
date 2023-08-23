@@ -16,8 +16,14 @@ This lets you easily share text, photos and other files between any device in yo
 -  run `npm run setup-and-install` to install all the required node packages
 - Run `npm run dev` to start the dev servers.
 
+## Tests (new)
+> unit and integration tests for the backend
+- run `npm run setup-and-install` if you haven't already, or if your device's private ip address has changed
+- Run `npm run test` to see the tests in action.
+
 ## Feature List
 ### Completed
+- [x] Unit and Integration Tests for the backend code
 - [x] Responsive Design using Material UI React Components, supporting mobile and desktop devices
 - [x] QR Code modal to quickly access the app from a mobile device
 - [x] Paste or type text into a textbox, and upload a .txt file containing the text to the server
@@ -33,16 +39,15 @@ This lets you easily share text, photos and other files between any device in yo
 
 ### Planned / In Progress
 - [ ] switching from react-scripts to vite
-- [ ] (in progress) Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
+- [ ] Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
 - [ ] use the [dropzone](https://www.dropzone.dev/) package to handle
   - [ ] upload in progress UI
   - [ ] cancel upload UI
   - [ ] adding support to upload folders, and displaying the folders as React Components
-- [ ] basic testing setup
 - [ ] Copy file's contents to clipboard
   - [ ] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
   - [ ] handling cross-browser inconsistency for support of the ClipboardAPI, especially for image files
-- [ ] (in progress) build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
+- [ ] build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
 - [ ] background uploads and downloads for large files, possibly using the Worker API
 
 ## Technical Details
@@ -52,6 +57,13 @@ Frontend:
 Backend:
 - NodeJS + ExpressJS
 > the backend is acting as both the Model and Controller in the MVC pattern, since the files are statically hosted using ExpressJS
+
+Testing:
+Backend Testing: 
+- `jest` for the test suite
+- `needle` to simulate the http client
+- `eventsource` to simulate the SSE client
+- `stoppable` to stop the http server quickly
 
 ## Production Build
 The prod build is a work in progress, but when running it it reduces the size of the react bundle sent to the browser. It can be run using: `npm run rebuild-prod`. 
