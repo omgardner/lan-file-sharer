@@ -25,6 +25,7 @@ function QRCodeDialog({closeDialog, open}) {
                   src={`${process.env.PUBLIC_URL}/app-qrcode.png`} 
                   alt="qr code couldn't be displayed"
                   width={'250px'}
+                  draggable="false"
                   
                   />
 
