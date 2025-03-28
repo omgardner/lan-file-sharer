@@ -7,13 +7,10 @@
     "qrcode": "^1.5.3"
   },
   "scripts": {
-    "frontend-install": "cd frontend && npm install",
-    "backend-install": "cd backend && npm install",
-    "setup": "npm install && node setup-env-files",
-    "setup-and-install": "npm run setup && concurrently \"npm run backend-install\" \"npm run frontend-install\"",
-    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
-    "rebuild-prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run rebuild-prod\" ",
-    "prod": "concurrently \"cd backend && npm run prod\" \"cd frontend && npm run prod\" ",
+    "prod": "concurrently \"cd frontend && npm run prod\" \"cd backend && npm run prod\"",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd backend && npm run dev\"",
+    "setup": "npm install && node setup-env-files && concurrently \"cd frontend && npm install\" \"cd backend && npm install\"",
+    "rebuild-prod": "concurrently \"cd frontend && npm run rebuild-prod\" \"cd backend && npm run prod\"",
 	"test": "cd backend && npm run test"
   },
   "browserslist": {

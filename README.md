@@ -13,13 +13,12 @@ This lets you easily share text, photos and other files between any device in yo
 ## How to run
 - [Install NodeJS](https://nodejs.org/en)
 - navigate to this repo's root folder
--  run `npm run setup-and-install` to install all the required node packages
-- Run `npm run dev` to start the dev servers.
+-  run `npm run setup` to setup dependencies as well as to generate the config file
+- Run `npm run dev` to start the dev servers
 
 ## Tests (new)
 > unit and integration tests for the backend
-- run `npm run setup-and-install` if you haven't already, or if your device's private ip address has changed
-- Run `npm run test` to see the tests in action.
+- run `npm run setup && npm run test` to see the tests in action.
 
 ## Feature List
 ### Completed
@@ -36,19 +35,6 @@ This lets you easily share text, photos and other files between any device in yo
 - [x] Detects the Private IP Address and creates environment variables via .env files
 - [x] Cross-platform support for hosting the servers
 - [x] Downloading files and Previewing their contents in a new tab
-
-### Planned / In Progress
-- [ ] switching from react-scripts to vite
-- [ ] Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
-- [ ] use the [dropzone](https://www.dropzone.dev/) package to handle
-  - [ ] upload in progress UI
-  - [ ] cancel upload UI
-  - [ ] adding support to upload folders, and displaying the folders as React Components
-- [ ] Copy file's contents to clipboard
-  - [ ] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
-  - [ ] handling cross-browser inconsistency for support of the ClipboardAPI, especially for image files
-- [ ] build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
-- [ ] background uploads and downloads for large files, possibly using the Worker API
 
 ## Technical Details
 Frontend:
@@ -86,6 +72,18 @@ For example if your Private IP Address was `192.168.0.15`:
 ![ui-mobile-files-uploaded](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-mobile-files-uploaded.png?raw=true)
 > Responsive design, showing the text and files that were just uploaded
 
-
 ![ui-drag-and-drop](https://github.com/omgardner/lan-file-sharer/blob/main/docs/ui-drag-and-drop.png?raw=true)
 > Drag & Drop UI modal
+
+## Planned / In Progress Tasks
+- [ ] switching from react-scripts to vite
+- [ ] Toast / SnackBar messages to show status changes (e.g. "File(s) Uploaded Successfully", "File Deleted Successfully")
+- [ ] use the [dropzone](https://www.dropzone.dev/) package to handle
+  - [ ] upload in progress UI
+  - [ ] cancel upload UI
+  - [ ] adding support to upload folders, and displaying the folders as React Components
+- [ ] Copy file's contents to clipboard
+  - [ ] reverse proxy server to enable HTTPS to create a "[Secure Context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts)", allowing access to the browser's [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
+  - [ ] handling cross-browser inconsistency for support of the ClipboardAPI, especially for image files
+- [ ] build script using ShellJS package to create a production build to be hosted on a Raspberry PI with a bad CPU
+- [ ] background uploads and downloads for large files, possibly using the Worker API
